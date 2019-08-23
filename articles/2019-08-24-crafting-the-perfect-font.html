@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <link rel="stylesheet" type="text/css" href="../style.css"/>
+    <link rel="stylesheet" type="text/css" href="../pygments.css"/>
+    <title>lazybvr's notes / Crafting the perfect font</title>
+  </head>
+<body>
+  <header>
+    <nav>
+      <a title="home" href="../index.html"><svg class="current" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v 8z"/><path d="M0 0h24v24H0z" fill="none"/></svg></a>
+      <a title="about" href="../about.html"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg></a>
+   </nav>
+    <h1>lazybvr's notes</h1>
+  </header>
+  <section>
+    <article>
+      <h2>Crafting the perfect font</h2>
+      <p class="date">2019-08-24</p>
+      <p class="clear"></p>
+      <p>
+        Since this is my first <em>Note</em>, I've spent a few good days trying to come up
+        with some introductory anecdote. As a result, there won't be any this time :)
+      </p>
+      <h3>The font</h3>
+      <p>
+        If you're already strongly convinced about your choice of font, that's fine.
+        Either way, I recommend taking a look at
+        <a href="https://github.com/be5invis/Iosevka" target="_blank">Iosevka</a> and
+        <a href="https://input.fontbureau.com/">Input</a> as they provide very neat customization options.
+      </p>
+      <h3>Customization</h3>
+      <h4>Input</h4>
+      <p>
+          If you have chosen Input, you're all set.
+          Just go to its webpage, select the options you like on the
+          <span class="inlineCode">Preview</span> page
+          and download your very own iteration of Input.
+      </p>
+      <h4>Iosevka</h4>
+      <p>
+          Iosevka provides many more customization options, along with different ligation
+          sets dedicated for specific programming languages, however the process needs
+          to be performed on your computer.
+      </p>
+      <p>
+          I'll walk you through it on Arch Linux. If you're using macOS, check out
+          <a href="https://github.com/robertgzr/homebrew-tap" target="_blank">
+          this tap for Homebrew</a>.
+          Otherwise, you'll need to follow the instructions on Iosevka's repo and
+          install the required dependencies by hand.
+      </p>
+      <p>
+          On Arch, everything boils down to creating the file:
+          <span class="inlineCode">~/.config/iosevka/private-build-plans.toml</span>
+          and filling it with your desired configuration.
+          Check out the readme,
+          <a href="https://github.com/be5invis/Iosevka/blob/master/private-build-plans.sample.toml" target="_blank">
+          the sample config</a>, and <a href="https://github.com/be5invis/Iosevka/blob/master/variants.toml<Paste>" target="_blank">
+          the list of available variants</a> (note the <span class="inlineCode">tag</span> keys; they correspond to the graphics in the readme).
+          When you're ready, just build the <span class="inlineCode">ttf-iosevka-custom-git</span> package using
+          your favourite AUR helper.
+      </p>
+      <p>Here are my own build plans, if you're looking for some inspiration:</p>
+      <script src="https://gist.github.com/LazyBvr/4ee55ddea59a5f5d4348e8638ba66749.js"></script>
+      <h3>Ligatures</h3>
+      <p>
+        If the font of your choice doesn't come equipped with programming ligatures, don't worry.
+        We can use <a href="https://github.com/ToxicFrog/Ligaturizer" target="_blank">Ligaturizer</a>
+        to fix this. It will add Fira Code's ligatures to your font. As far as my experience goes,
+        they don't look out of place very much.
+      </p>
+      <p>
+        Ligaturizer need FontForge built with Python 2 support to work correctly.
+        Unfortunately, the version shipped with Arch uses Python 3 instead. However, this problem is easy to remedy. We'll just build our own FontForge package.
+      </p>
+      <div class="highlight"><pre><span></span>
+    <span class="c1"># download the PKGBUILD</span>
+    <span class="nb">svn</span> checkout svn://svn.archlinux.org/packages/fontforge/repos/extra-x86_64 <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    <span class="nb">cd</span> extra-x86_64 <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    <span class="c1"># modify the PKGBUILD to build FontForge with Python 2 support</span>
+    <span class="nb">sed</span> -i <span class="s1">&#39;s/.\/configure/PYTHON=python2 &amp;/&#39;</span> PKGBUILD <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    <span class="c1"># build and install the package</span>
+    <span class="nb">makepkg</span> -si
+      </pre></div>
+      <p>
+        <br/>
+        Then, we just need to properly clone Ligaturizer's repo.
+      </p>
+      <div class="highlight"><pre><span></span><span class="c1">
+    # mind the --recurse-submodules part</span>
+    <span class="nb">git</span> clone --recurse-submodules https://github.com/ToxicFrog/Ligaturizer.git
+      </pre></div>
+      <p>
+        <br/>
+        And copy the font family we want to modify to Ligaturizer's <span class="inlineCode">fonts</span> directory.
+      </p>
+      <div class="highlight"><pre><span></span>
+    <span class="nv">FONT_DIR</span><span class="o">=</span><span class="s2">&quot;path to your font&#39;s directory&quot;</span>
+    <span class="nb">cp</span> -r <span class="s2">&quot;</span><span class="nv">$FONT_DIR</span><span class="s2">&quot;</span> Ligaturizer/fonts
+      </pre></div>
+      <p>
+        <br/>
+        Lastly, we need to register our font in <span class="inlineCode">build.py</span> file, as well as remove unneeded fonts. Here's the important part of the file:
+      </p>
+      <div class="highlight"><pre><span></span>
+    <span class="c1"># this will produce font &#39;Liga myfont&#39;</span>
+    <span class="n">prefixed_fonts</span> <span class="o">=</span> <span class="p">[</span>
+      <span class="c1"># assuming your $FONT_DIR is &#39;myfont&#39;</span>
+      <span class="c1"># and the extension of your fonts is &#39;otf&#39;</span>
+      <span class="s1">&#39;fonts/myfont/*.otf&#39;</span>
+    <span class="p">]</span>
+        
+    <span class="c1"># otherwise, you can fully rename your fonts</span>
+    <span class="c1"># this will produce font &#39;myfont FANCY&#39;</span>
+    <span class="n">renamed_fonts</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="c1"># &#39;fonts/myfont/*.otf&#39;: &#39;myfont FANCY&#39;,</span>
+    <span class="p">}</span>
+        </pre></div>
+        <p>
+          <br/>
+          Now we can finally run the script!
+        </p>
+        <div class="highlight"><pre><span></span>
+    <span class="nb">cd</span> Ligaturizer <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    <span class="nb">make</span>
+        </pre></div>
+        <p>
+          <br/>
+          After that, you newly patched font will be located in <span class="inlineCode">Ligaturizer/fonts/output</span>.
+        </p>
+      <h3>A myriad of symbols</h3>
+      <p>
+        If you're still not satisfied with your font's capabilities, we can patch it to contain many other goodies like Powerline symbols, FontAwesome and
+        Material Design icons...
+      </p>
+      <p>
+        Do note that if you can install these as separate font packages, that may be a better choice.
+        For instance, Arch offers <span class="inlineCode">awesome-terminal-fonts</span> for Powerline,
+        <span class="inlineCode">{otf,ttf}-font-awesome</span> for FontAwesome and
+        <span class="inlineCode">ttf-material-design-icons</span> (in AUR) for Material Design.
+      </p>
+      <p>
+        Again, we start by cloning <a href="https://github.com/ryanoasis/nerd-fonts" target="_blank">Nerd Fonts repo</a>.
+        It is absurdly large, however, so we'll take advantage of Subversion's capability to download select
+        directories only.
+      </p>
+      <div class="highlight"><pre><span></span>
+    <span class="c1"># download the script itself</span>
+    <span class="nb">curl</span> -O <span class="s1">&#39;https://raw.githubusercontent.com/ryanoasis/nerd-fonts/2.0.0/font-patcher&#39;</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    <span class="nb">chmod</span> +x font-patcher <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    <span class="c1"># create the directory needed by the script</span>
+    <span class="nb">mkdir</span> src <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    <span class="nb">cd</span> src <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    <span class="c1"># now we&#39;re trying to be clever with svn</span>
+    <span class="nb">svn</span> checkout https://github.com/ryanoasis/nerd-fonts/trunk/src/<span class="o">{</span>glyphs,svgs<span class="o">}</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    <span class="nb">cd</span> .. <span class="o">&amp;&amp;</span> <span class="se">\</span>
+    <span class="nb">svn</span> checkout --depth files https://github.com/ryanoasis/nerd-fonts/trunk/src
+      </pre></div>  
+      <p>
+        <br/>
+        Now, the patcher need FontForge with Python support as well. Theoretically, it should be
+        happy with both Python versions but on my system it definitely wanted the Python 3 one.
+        On Arch, we can revert to the original build with a simple
+        <span class="inlineCode">sudo pacman -S fontforge</span>.
+      </p>
+      <p>
+        Execute the <span class="inlineCode">font-patcher</span>. If it complains about the
+        required arguments, you're all set. Take a look at the
+        <a href="https://github.com/ryanoasis/nerd-fonts#font-patcher" target="_blank">
+        list of available options
+        </a>. I'll go with just a simple addition of Powerline symbols.
+      </p>
+      <div class="highlight"><pre><span></span>
+    <span class="c1"># I&#39;ll patch my Iosevka with Powerline symbols</span>
+    <span class="c1"># since font-patcher accepts one font at a time,</span>
+    <span class="c1"># it&#39;s easiest the utilize a loop or a utility like find</span>
+    <span class="nb">find</span> /usr/share/fonts/TTF/ -iname <span class="s1">&#39;iosevka-custom*.ttf&#39;</span> <span class="se">\</span>
+      -exec ./font-patcher --powerline <span class="o">{}</span> <span class="se">\;</span>
+      </pre></div>
+      <p>
+        <br/>
+        After your fonts have been patched, you'll find the results in
+        <span class="inlineCode">font-patcher</span>'s work directory.
+      </p>
+      <p>
+        This concludes all I know about font customization up to the date.
+        I hope it saves you from dilemmas like "Well... I love this font but it doesn't have ligatures...".
+      </p>
+    </article>
+  </section>
+</body>
+</html>

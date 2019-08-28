@@ -9,7 +9,7 @@ a {
 }
 
 article {
-  padding: 1.5rem;
+  padding: 1.7rem;
   background-color: inherit;
 }
 
@@ -58,7 +58,7 @@ pre {
   overflow: auto;
 }
 
-section {
+div.content {
   flex: 1;
   height: 100%;
   padding-top: 1.7rem;

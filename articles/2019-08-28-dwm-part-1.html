@@ -8,8 +8,8 @@ brief: Getting started with this year's hottest tiling WM.
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <link rel="stylesheet" type="text/css" href="../style.css"/>
-  <link rel="stylesheet" type="text/css" href="../pygments.css"/>
-  <title>lazybvr's notes</title>
+  <link rel="stylesheet" type="text/css" href="../paint.css"/>
+  <title>lazybvr's notes / dwm, part 1</title>
 </head>
 <body>
 <header>
@@ -29,128 +29,147 @@ brief: Getting started with this year's hottest tiling WM.
     <h1>lazybvr's notes</h1>
   </nav>
 </header>
-  <div class="content">
+<div class="content">
   <article>
     <h2>dwm, part 1</h2>
     <p class="date">2019-08-28</p>
     <p class="clear"></p>
     <p>In this short series, we'll set up a quite basic but comfortable
-  enough <a href="https://dwm.suckless.org/" target="_blank">dwm</a>
-  installation.</p>
+enough <a href="https://dwm.suckless.org/" target="_blank">dwm</a>
+installation.</p>
 <h3>What is dwm?</h3>
 <p>It's a tiling window manager; other examples of such include then-the-coolest
-  <span class="inlineCode">i3</span>, <span class="inlineCode">bspwm</span> and
-  the classic <span class="inlineCode">ratpoison</span>.</p>
+<span class="inlineCode">i3</span>, <span class="inlineCode">bspwm</span> and
+the classic <span class="inlineCode">ratpoison</span>.</p>
 <p>One of dwm's distinctive features is its adherence to
-  <a href="https://suckless.org/philosophy/" target="_blank">suckless
-  philosophy</a>. It aims to bring back core UNIX values of creating simple
-  applications that excel at the one thing they're doing. Otherwise, it's
-  a very lightweight and productive WM, much so that I've switched to it from
-  GNOME (quite a transition!).</p>
+<a href="https://suckless.org/philosophy/" target="_blank">suckless
+philosophy</a>. It aims to bring back core UNIX values of creating simple
+applications that excel at the one thing they're doing. Otherwise, it's
+a very lightweight and productive WM, much so that I've switched to it from
+GNOME (quite a transition!).</p>
 <h3>Getting started</h3>
 <p>Let's start by installing dependencies required to build dwm and it's
-  terminal emulator, <span class="inlineCode">st</span>. This will be the
-  only distro-dependent step in this tutorial. If you're not using Arch
-  Linux you'll need to find out how to install
-  <span class="inlineCode">Xlib</span> headers (as per dwm's README) and
-  dmenu (not necessary but very much recommended). Otherwise:</p> 
-<div class="highlight"><pre><span></span>
-<span class="nb">cat</span> <span class="s">&lt;&lt; EOF</span> | <span class="nb">grep</span> -v <span class="s">&#39;#&#39;</span> | <span class="nb">tr</span> <span class="s">&#39; &#39; &#39;\n&#39;</span> | <span class="nb">sudo</span> pacman -S --needed -
-<span class="s"># st dependencies</span>
-<span class="s">libxext libxft xorg-fonts-misc ncurses</span>
-<span class="s"># additional dwm dependencies</span>
-<span class="s">dmenu freetype2 libx11 libxinerama</span>
-<span class="s"># these are not required but will be useful later on</span>
-<span class="s">xorg-xsetroot xorg-xfontsel xorg-xfd</span>
-<span class="s">EOF</span>
-</pre></div>
+terminal emulator, <span class="inlineCode">st</span>. This will be the
+only distro-dependent step in this tutorial. If you're not using Arch
+Linux you'll need to find out how to install
+<span class="inlineCode">Xlib</span> headers (as per dwm's README) and
+dmenu (not necessary but very much recommended). Otherwise:</p> 
+<div class='paint'>
+<table>
+<tr><td><span class='pt13'>cat</span> <span class='pt17'>&lt;&lt;</span><span class='pt8'> </span><span class='pt17'>EOF</span> <span class='pt17'>|</span> <span class='pt13'>grep -v</span> <span class='pt8'>&#39;#&#39;</span> <span class='pt17'>|</span> <span class='pt13'>tr</span> <span class='pt8'>&#39; &#39;</span> <span class='pt8'>&#39;\n&#39;</span> <span class='pt17'>|</span> <span class='pt13'>sudo</span> pacman<span class='pt13'> -S --needed</span> -</td></tr>
+<tr><td><span class='pt8'># st dependencies</span></td></tr>
+<tr><td><span class='pt8'>libxext libxft xorg-fonts-misc ncurses</span></td></tr>
+<tr><td><span class='pt8'># additional dwm dependencies</span></td></tr>
+<tr><td><span class='pt8'>dmenu freetype2 libx11 libxinerama</span></td></tr>
+<tr><td><span class='pt8'># these are not required but will be useful later on</span></td></tr>
+<tr><td><span class='pt8'>xorg-xsetroot xorg-xfontsel xorg-xfd</span></td></tr>
+<tr><td><span class='pt17'>EOF</span></td></tr>
+</table>
+</div>
+
 <p>Now, to download the sources. You can approach building dwm and friends
-  in many different manners, but to get the hang of things its best to do it
-  the old-fashioned way.</p>
+in many different manners, but to get the hang of things its best to do it
+the old-fashioned way.</p>
 <p>Let's start by creating a directory to store our sources. I'll go with
-  <span class="inlineCode">~/.suckless</span>. Then, we'll download and extract
-  the source code.</p>
-<div class="highlight"><pre><span></span>
-<span class="c1"># create the directory for our sources</span>
-<span class="nb">mkdir</span> ~/.suckless <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nb">cd</span> ~/.suckless <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="c1"># download current (as of writing this article) st and dwm</span>
-<span class="nb">curl</span> -O https://dl.suckless.org/st/st-0.8.2.tar.gz <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nb">curl</span> -O https://dl.suckless.org/dwm/dwm-6.2.tar.gz <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="c1"># extract the tarballs</span>
-<span class="nb">tar</span> xf st-0.8.2.tar.gz <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nb">tar</span> xf dwm-6.2.tar.gz <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="c1"># clean up</span>
-<span class="nb">rm</span> *.tar.gz
-</pre></div>
+<span class="inlineCode">~/.suckless</span>. Then, we'll download and extract
+the source code.</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt12'># create the directory for our sources</span></td></tr>
+<tr><td><span class='pt13'>mkdir</span> <span class='pt7'>~</span>/.suckless <span class='pt17'>&amp;&amp;</span> \</td></tr>
+<tr><td><span class='pt13'>cd</span> <span class='pt7'>~</span>/.suckless <span class='pt17'>&amp;&amp;</span> \</td></tr>
+<tr><td><span class='pt12'># download current (as of writing this article) st and dwm</span></td></tr>
+<tr><td><span class='pt13'>curl -O</span> https://dl.suckless.org/st/st-0.8.2.tar.gz <span class='pt17'>&amp;&amp;</span> \</td></tr>
+<tr><td><span class='pt13'>curl -O</span> https://dl.suckless.org/dwm/dwm-6.2.tar.gz <span class='pt17'>&amp;&amp;</span> \</td></tr>
+<tr><td><span class='pt12'># extract the tarballs</span></td></tr>
+<tr><td><span class='pt13'>tar</span> xf st-0.8.2.tar.gz <span class='pt17'>&amp;&amp;</span> \</td></tr>
+<tr><td><span class='pt13'>tar</span> xf dwm-6.2.tar.gz <span class='pt17'>&amp;&amp;</span> \</td></tr>
+<tr><td><span class='pt12'># clean up</span></td></tr>
+<tr><td><span class='pt13'>rm</span> <span class='pt17'>*</span>.tar.gz</td></tr>
+</table>
+</div>
+
 <p>Now we just need to compile and install the applications. As you'll notice,
-  it's a very quick process thanks to extremely clean codebase.</p>
-<div class="highlight"><pre><span></span>
-<span class="c1"># building st first, since it&#39;s required by dwm</span>
-<span class="nb">cd</span> st-0.8.2 <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nb">sudo</span> make clean install <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="c1"># dwm now</span>
-<span class="nb">cd</span> ../dwm-6.2 <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nb">sudo</span> make clean install
-</pre></div>
+it's a very quick process thanks to extremely clean codebase.</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt12'># building st first, since it&#39;s required by dwm</span></td></tr>
+<tr><td><span class='pt13'>cd</span> st-0.8.2 <span class='pt17'>&amp;&amp;</span> \</td></tr>
+<tr><td><span class='pt13'>sudo</span> make clean install <span class='pt17'>&amp;&amp;</span> \</td></tr>
+<tr><td><span class='pt12'># dwm now</span></td></tr>
+<tr><td><span class='pt13'>cd</span> ../dwm-6.2 <span class='pt17'>&amp;&amp;</span> \</td></tr>
+<tr><td><span class='pt13'>sudo</span> make clean install</td></tr>
+</table>
+</div>
+
 <p>By default, the applications will be installed in
-  <span class="inlineCode">/usr/local/bin</span>. But before we launch dwm
-  for the first time, let's touch upon the topic of customizations we'll
-  be performing in the near future</p>
+<span class="inlineCode">/usr/local/bin</span>. But before we launch dwm
+for the first time, let's touch upon the topic of customizations we'll
+be performing in the near future</p>
 <p>If you now visit either st's or dwm's source directory, you may notice
-  that a new file, <span class="inlineCode">config.h</span>, has appeared
-  in both of them. This is the file we'll be editing in order to change
-  the behavior and appearance of st and dwm. Meanwhile,
-  <span class="inlineCode">config.def.h</span> contains default configuration,
-  which is quite useful, if we mess the configuration header.</p>
+that a new file, <span class="inlineCode">config.h</span>, has appeared
+in both of them. This is the file we'll be editing in order to change
+the behavior and appearance of st and dwm. Meanwhile,
+<span class="inlineCode">config.def.h</span> contains default configuration,
+which is quite useful, if we mess the configuration header.</p>
 <p>Either way, I recommend setting up a local git repo for our suckless
-  applications in order to make tracking and reverting changes even easier.</p>
-<div class="highlight"><pre><span></span>
-<span class="nb">cd</span> ~/.suckless <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nb">git</span> init <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nb">git</span> add * <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="nb">git</span> commit -m <span class="s1">&#39;vanilla installation&#39;</span>
-</pre></div>
+applications in order to make tracking and reverting changes even easier.</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt13'>cd</span> <span class='pt7'>~</span>/.suckless <span class='pt17'>&amp;&amp;</span> \</td></tr>
+<tr><td><span class='pt13'>git</span> init <span class='pt17'>&amp;&amp;</span> \</td></tr>
+<tr><td><span class='pt13'>git</span> add <span class='pt17'>*</span> <span class='pt17'>&amp;&amp;</span> \</td></tr>
+<tr><td><span class='pt13'>git</span> commit<span class='pt13'> -m</span> <span class='pt8'>&#39;vanilla installation&#39;</span></td></tr>
+</table>
+</div>
+
 <p>Now every time we change our settings, we'll be able to commit the
-  changes along with a helpful description for further reference, as well
-  as revert changes we didn't like. For example:</p>
-<div class="highlight"><pre><span></span>
-<span class="c1"># for more information, consult `man git`</span>
-<span class="c1"># cancel our latest changes if we&#39;ve commited them</span>
-<span class="nb">git</span> revert HEAD
-<span class="c1"># cancel our latest changes if we haven&#39;t commited them yet</span>
-<span class="nb">git</span> reset --hard
-</pre></div>
+changes along with a helpful description for further reference, as well
+as revert changes we didn't like. For example:</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt12'># for more information, consult `man git`</span></td></tr>
+<tr><td><span class='pt12'># cancel our latest changes if we&#39;ve commited them</span></td></tr>
+<tr><td><span class='pt13'>git</span> revert HEAD</td></tr>
+<tr><td><span class='pt12'># cancel our latest changes if we haven&#39;t commited them yet</span></td></tr>
+<tr><td><span class='pt13'>git</span> reset<span class='pt13'> --hard</span></td></tr>
+</table>
+</div>
+
 <h3>Starting dwm</h3>
 <p>If you're using a fancy display manager (e.g. <span class="inlineCode">GDM</span>,
-  <span class="inlineCode">SDDM</span>) then just select
-  <span class="inlineCode">dwm</span> as your session of choice during login.</p>
+<span class="inlineCode">SDDM</span>) then just select
+<span class="inlineCode">dwm</span> as your session of choice during login.</p>
 <p>I myself prefer good ol' <span class="inlineCode">startx</span>
-  (package <span class="inlineCode">xorg-xinit</span> on Arch).
-  If this is your case as well, just add <span class="inlineCode">exec dwm</span>
-  to your <span class="inlineCode">~/.xinitrc</span> file. When you
-  call <span class="inlineCode">startx</span> next time, you'll be greeted
-  by dwm.</p>
-<div class="highlight"><pre><span></span>
-grep <span class="s1">&#39;\bexec\b&#39;</span> ~/.xinitrc &gt; /dev/null <span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
-<span class="c1"># if we&#39;re already executing something else, replace it with dwm</span>
-sed -i <span class="s1">&#39;s/\bexec\s\+[[:alnum:]]\+/exec dwm/&#39;</span> ~/.xinitrc <span class="o">||</span> <span class="se">\</span>
-<span class="c1"># otherwise, just add the line to the end of file</span>
-<span class="nb">echo</span> <span class="s1">&#39;exec dwm&#39;</span> &gt;&gt; ~/.xinitrc
-</pre></div>
+(package <span class="inlineCode">xorg-xinit</span> on Arch).
+If this is your case as well, just add <span class="inlineCode">exec dwm</span>
+to your <span class="inlineCode">~/.xinitrc</span> file. When you
+call <span class="inlineCode">startx</span> next time, you'll be greeted
+by dwm.</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt13'>grep</span> <span class='pt8'>&#39;\bexec\b&#39;</span> <span class='pt7'>~</span>/.xinitrc <span class='pt17'>&gt;</span> /dev/null <span class='pt7'>2</span><span class='pt17'>&gt;&amp;</span><span class='pt7'>1</span> <span class='pt17'>&amp;&amp;</span> \</td></tr>
+<tr><td><span class='pt12'># if we&#39;re already executing something else, replace it with dwm</span></td></tr>
+<tr><td><span class='pt13'>sed -i</span> <span class='pt8'>&#39;s/\bexec\s\+[[:alnum:]]\+/exec dwm/&#39;</span> <span class='pt7'>~</span>/.xinitrc <span class='pt17'>||</span> \</td></tr>
+<tr><td><span class='pt12'># otherwise, just add the line to the end of file</span></td></tr>
+<tr><td><span class='pt13'>echo</span> <span class='pt8'>&#39;exec dwm&#39;</span> <span class='pt17'>&gt;&gt;</span> <span class='pt7'>~</span>/.xinitrc</td></tr>
+</table>
+</div>
+
 <h3>What's next?</h3>
 <p>In the next part, we'll start personalizing dwm and st. In the meantime,
-  make yourself familiar with dwm's basic concepts and shortcuts.
-  You need only two shortcuts (well, technically one of them) to get started:
-  <ul>
-    <li><span class="inlineCode">Alt-Shift-Enter</span> - open the terminal</li>
-    <li><span class="inlineCode">Alt-P</span> - open dmenu's prompt
-      (it's a simple application launcher)</li>
-  </ul>
-  <br/>When you manage to open up your favourite web browser, check out
-  <a href="https://dwm.suckless.org/tutorial/" target="_blank">dwm's tutorial</a>.</p>
-  <p>Happy tiling!</p>
+make yourself familiar with dwm's basic concepts and shortcuts.
+You need only two shortcuts (well, technically one of them) to get started:
+<ul>
+<li><span class="inlineCode">Alt-Shift-Enter</span> - open the terminal</li>
+<li><span class="inlineCode">Alt-P</span> - open dmenu's prompt
+(it's a simple application launcher)</li>
+</ul>
+<p>When you manage to open up your favourite web browser, check out
+<a href="https://dwm.suckless.org/tutorial/" target="_blank">dwm's tutorial</a>.</p>
+<p>Happy tiling!</p>
+
   </article>
-  </div>
+</div>
 </body>
 </html>

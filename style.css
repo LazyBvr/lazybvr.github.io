@@ -158,3 +158,11 @@ nav a:hover {
 nav a:hover > svg {
   fill: #000000;
 }
+
+.gist-data {
+  max-height: 30em;
+}
+
+li li {
+  margin-left: 2em;
+}

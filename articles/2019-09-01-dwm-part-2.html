@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<!--
+title: dwm, part 2
+brief: Making dwm your own.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <link rel="stylesheet" type="text/css" href="../style.css"/>
+  <link rel="stylesheet" type="text/css" href="../paint.css"/>
+  <title>lazybvr's notes / dwm, part 2</title>
+</head>
+<body>
+<header>
+  <nav>
+    <a title="home" href="../index.html">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v 8z"></path>
+        <path d="M0 0h24v24H0z" fill="none"></path>
+      </svg>
+    </a>
+    <a title="about" href="../about.html">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+        <path d="M0 0h24v24H0z" fill="none"></path>
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"></path>
+      </svg>
+    </a>
+    <h1>lazybvr's notes</h1>
+  </nav>
+</header>
+<div class="content">
+  <article>
+    <h2>dwm, part 2</h2>
+    <p class="date">2019-09-01</p>
+    <p class="clear"></p>
+    <p>
+  <a href="2019-08-28-dwm-part-1.html" target="_blank">Last time</a> we've
+  installed dwm and prepared it for the configuration phase which comes right
+  now.
+</p>
+<h3>How does configuring dwm work?</h3>
+<p>
+  As I've mentioned previously, suckless philosophy values simplicity.
+  Therefore, these applications don't look for or try to load any
+  configuration files during their startup. Simply put, there is no
+  configuration per se.
+</p>
+<p>
+  That does not mean, however, that we can't customize our programs.
+  We can change their behaviour by modifying the source code.
+  And comfortably enough, most common options for dwm and st are
+  available in their respective <span class="inlineCode">config.h</span>
+  files, making performing customization not so different from editing
+  classic configuration files.
+</p>
+<p>
+  Apart from that, many users provide their own customizations in the form of
+  <a href="http://man7.org/linux/man-pages/man1/patch.1.html" target="_blank">
+  patch</a> files, allowing us to modify and add new features without getting
+  our hands dirty
+  (<a href="https://dwm.suckless.org/patches/">dwm patches</a>,
+  <a href="https://st.suckless.org/patches/" target="_blank">st patches</a>).
+</p>
+<h3>st</h3>
+<p>
+  Let's start by customizing st, since it will most certainly rule our screen
+  space for some time. It's best to start out with the patches and apply our
+  personal changes in the end.
+</p>
+<h4>Patches</h4>
+<p>These are the patches I propose we use:</p>
+  <ul>
+    <li>
+      <a href="https://st.suckless.org/patches/clipboard/" target="_blank">
+      clipboard</a>
+      - copy and paste from the same clipboard as most applications
+      (e.g. Firefox) do
+    </li>
+    <li>
+      <a href="https://st.suckless.org/patches/scrollback/" target="_blank">
+      scrollback</a>
+      - scroll up and down using
+      <span class="inlineCode">Shift-PageUp/PageDown</span>
+    </li>
+    <li>
+      <a href="https://st.suckless.org/patches/nordtheme/" target="_blank">
+      nordtheme</a>
+      - <a href="https://www.nordtheme.com/" target="_blank">Nord</a>
+      color scheme (there are of course others, like
+      <a href="https://st.suckless.org/patches/dracula/" target="_blank">
+      dracula</a> or
+      <a href="https://st.suckless.org/patches/solarized/" target="_blank">
+      solarized</a>)
+    </li>
+  </ul>
+<p>
+  First, we need to download the patches for our current version of st
+  (as of this time, <span class="inlineCode">st 0.8.2</span>):
+</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt12'># change to your st&#39;s directory, e.g.:</span></td></tr>
+<tr><td><span class='pt13'>cd</span> <span class='pt7'>~</span>/.suckless/st-0.8.2 <span class='pt17'>&amp;&amp;</span> \</td></tr>
+<tr><td><span class='pt12'># download the patches</span></td></tr>
+<tr><td><span class='pt13'>curl -O</span> https://st.suckless.org/patches/clipboard/st-clipboard-0.8.2.diff <span class='pt17'>&amp;&amp;</span> \</td></tr>
+<tr><td><span class='pt13'>curl -O</span> https://st.suckless.org/patches/scrollback/st-scrollback-0.8.2.diff <span class='pt17'>&amp;&amp;</span> \</td></tr>
+<tr><td><span class='pt13'>curl -O</span> https://st.suckless.org/patches/nordtheme/st-nordtheme-0.8.2.diff <span class='pt17'>&amp;&amp;</span> \</td></tr>
+<tr><td><span class='pt12'># apply the patches</span></td></tr>
+<tr><td><span class='pt13'>find</span> .<span class='pt13'> -iname</span> <span class='pt8'>&#39;*.diff&#39;</span><span class='pt13'> -exec</span> sh<span class='pt13'> -c</span> <span class='pt8'>&#39;patch &lt; &quot;$1&quot;&#39;</span> sh {} <span class='pt7'>\;</span> <span class='pt17'>&amp;&amp;</span> \</td></tr>
+<tr><td><span class='pt12'># additional tweaks for clipboard (see its description for an explanation)</span></td></tr>
+<tr><td><span class='pt13'>sed -i</span> <span class='pt8'>&#39;s/selpaste/clippaste/&#39;</span> config.def.h</td></tr>
+<tr><td><span class='pt12'># update our config.h</span></td></tr>
+<tr><td><span class='pt13'>rm -f</span> config.h <span class='pt17'>&amp;&amp;</span> \</td></tr>
+<tr><td><span class='pt13'>cp</span> config.def.h config.h <span class='pt17'>&amp;&amp;</span> \</td></tr>
+<tr><td><span class='pt12'># rebuild st</span></td></tr>
+<tr><td><span class='pt13'>sudo</span> make clean install <span class='pt17'>&amp;&amp;</span> \</td></tr>
+<tr><td><span class='pt12'># clean up</span></td></tr>
+<tr><td><span class='pt13'>rm</span> <span class='pt17'>*</span>.diff</td></tr>
+</table>
+</div>
+
+<p>We can also commit the changes (if you opted to use git):</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt13'>git</span> add config.h <span class='pt17'>&amp;&amp;</span> \</td></tr>
+<tr><td><span class='pt13'>git</span> commit<span class='pt13'> -am</span> <span class='pt8'>&#39;patch st (clipboard, scrollback, nordtheme)&#39;</span></td></tr>
+</table>
+</div>
+
+<h4>Manual changes</h4>
+<p>
+  To start with, you'd probably want to change the font used by the terminal.
+  There are two ways to specify your font - the Xorg way and the fontconfig
+  way (subjectively less cumbersome).
+</p>
+  <ul>
+    <li>
+      xorg - use <span class="inlineCode">xfontsel</span> to select your
+      options and copy the resulting font string; it will look similar to this:<br/>
+      <span class="inlineCode">-*-iosevka-medium-r-*-*-16-*-*-*-*-*-iso8859-1</span>
+    </li>
+    <li>
+      fontconfig - if you want to be super sure, check what's the actual name
+      of your font according to fontconfig, for example run
+      <span class="inlineCode">fc-list | awk -F ':' '/iosevka/ {print $2}'</span>
+      to look for font names containing <span class="inlineCode">iosevka</span>;
+      the specification like <span class="inlineCode">iosevka:style=medium:size=8</span>
+      will give you Iosevka Medium of size 8 (the <span class="inlineCode">style</span>
+      key is optional)
+    </li>
+  </ul>
+<p>
+  After you've got your font sorted out, just assign it to
+  <span class="inlineCode">font</span> variable in
+  <span class="inlineCode">config.h</span>. For example:
+</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt17'>static</span> <span class='pt17'>char</span> <span class='pt17'>*</span>font <span class='pt17'>=</span> <span class='pt8'>&quot;-*-iosevka-medium-r-*-*-16-*-*-*-*-*-iso8859-1&quot;</span>;</td></tr>
+</table>
+</div>
+
+<p>... or:</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt17'>static</span> <span class='pt17'>char</span> <span class='pt17'>*</span>font <span class='pt17'>=</span> <span class='pt8'>&quot;iosevka:style=medium:size=8&quot;</span>;</td></tr>
+</table>
+</div>
+
+<p>... and recompile st:</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt13'>sudo</span> make clean install</td></tr>
+</table>
+</div>
+
+<p>
+  I think this is a solid base to start with. Feel free to poke around in
+  <span class="inlineCode">config.h</span>; it's documented quite well.
+  That is, if you remember to
+  <span class="inlineCode">git commit</span> after making desired changes :)
+</p>
+<h3>dwm</h3>
+<h4>Patches</h4>
+<p>
+  Frankly, I haven't found any dwm patches absolutely necessary.
+  Still, there are many awesome ones available.
+  As before, check them out and apply the ones you find interesting
+  before we go further.
+</p>
+<h4>Manual changes</h4>
+<h5>Fonts</h5>
+<p>
+  As always, we start with fonts. The way we specify them is the same as with
+  st. First, we need to set all the fonts we're going to use.
+  This generally entails the main font and some <em>iconic</em> font.
+  In fact, you need not to specify the second font even if you're going to use
+  icons. However, you'll probably want to control their size.
+</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt12'>/* config.h */</span></td></tr>
+<tr><td><span class='pt12'>/* my main font is Roboto and my iconic font is Material Icons */</span></td></tr>
+<tr><td><span class='pt17'>static</span> <span class='pt17'>const</span> <span class='pt17'>char</span> <span class='pt17'>*</span>fonts[] <span class='pt17'>=</span> { <span class='pt8'>&quot;roboto:style=medium:size=7&quot;</span>, <span class='pt8'>&quot;material icons:size=7&quot;</span> };</td></tr>
+</table>
+</div>
+
+<p>Then, we can also specify the font used by dmenu:</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt17'>static</span> <span class='pt17'>const</span> <span class='pt17'>char</span> dmenufont[] <span class='pt17'>=</span> <span class='pt8'>&quot;roboto:style=medium:size=7&quot;</span>;</td></tr>
+</table>
+</div>
+
+<p>
+  <span class="inlineCode">sudo make clean install</span>,
+  <span class="inlineCode">Alt-Shift-Q</span>,
+  <span class="inlineCode">startx</span> and your fonts are ready.
+</p>
+<h5>The iconization</h5>
+<p>
+  Now is also a good time to pimp up our tag selector and layout symbols.
+  To give you some inspiration, it is common to replace tag numbers with
+  the icons representing the activities each tag is used for.
+  You can also change the number of elements in
+  <span class="inlineCode">tags</span> array if you'd like more or less
+  tags. This is also where you can replace numbers with icons, simply by
+  pasting in the icons you've selected.
+</p>
+<p>
+  The more baffling thing may be, however, copying these icons from somewhere.
+  This is what I've worked out when it comes to FontAwesome and Material Design Icons:
+</p>
+<ul>
+  <li>FontAwesome - there's a <a href="https://fontawesome.com/cheatsheet" target="_blank">
+      handy cheatsheet</a> where you can search for specific icons and copy them
+  </li>
+  <li>Material Design - tough luck:
+    <ol>
+      <li>find out what's the name of the font containing the
+    icons (for <span class="inlineCode">ttf-material-design-icons</span> on Arch it's
+    <span class="inlineCode">material icons</span>) and run <span class="inlineCode">xfd</span>
+    with said family name, for example <span class="inlineCode">xfd -fa 'material icons'</span></li>
+      <li>find the icon you're interested in, e.g. an envelope</li>
+      <li>look at its character code - in this case <span class="inlineCode">0x00e0e1</span></li>
+      <li>take its last 4 digits - <span class="inlineCode">e0e1</span></li>
+      <li>execute <span class="inlineCode">printf '\uABCD\n'</span> where <span class="inlineCode">ABCD</span>
+        is those 4 digits; for example: <span class="inlineCode">printf '\ue0e1\n'</li>
+      <li>at last, you can copy your icon</li>
+    </ol>
+  </li>
+</ul>
+<h5>Colors</h5>
+<p>
+  If there is something of importance similar as fonts, it's colors! The colors are defined using
+  <span class="inlineCode">col_gray1</span>, <span class="inlineCode">col_gray2</span>,
+  <span class="inlineCode">col_gray3</span>, <span class="inlineCode">col_gray4</span>
+  and <span class="inlineCode">col_cyan</span> variables. And of course, they do not need to be
+  gray or cyan. Here's my Nord-ish color scheme:
+</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt17'>static</span> <span class='pt17'>const</span> <span class='pt17'>char</span> col_gray1[] <span class='pt17'>=</span> <span class='pt8'>&quot;#2e3440&quot;</span>;</td></tr>
+<tr><td><span class='pt17'>static</span> <span class='pt17'>const</span> <span class='pt17'>char</span> col_gray2[] <span class='pt17'>=</span> <span class='pt8'>&quot;#2e3440&quot;</span>;</td></tr>
+<tr><td><span class='pt17'>static</span> <span class='pt17'>const</span> <span class='pt17'>char</span> col_gray3[] <span class='pt17'>=</span> <span class='pt8'>&quot;#d8dee9&quot;</span>;</td></tr>
+<tr><td><span class='pt17'>static</span> <span class='pt17'>const</span> <span class='pt17'>char</span> col_gray4[] <span class='pt17'>=</span> <span class='pt8'>&quot;#d8dee9&quot;</span>;</td></tr>
+<tr><td><span class='pt17'>static</span> <span class='pt17'>const</span> <span class='pt17'>char</span> col_cyan[]  <span class='pt17'>=</span> <span class='pt8'>&quot;#5e81ac&quot;</span>;</td></tr>
+</table>
+</div>
+
+<h5>Key bindings</h5>
+<p>
+  Let's also add a few useful shortcuts that'll allow us to control volume, reboot and shut down
+  the computer. They're defined using the <span class="inlineCode">keys</span>
+  array.
+</p>
+<p>
+  At the beginning of <span class="inlineCode">config.h</span>, include
+  <span class="inlineCode">XF86keysym</span> header. It defines additional
+  keyboard events (like <em>volume up</em> or <em>volume down</em>):
+</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt17'>#include</span> <span class='pt8'>&quot;X11/XF86keysym.h&quot;</span></td></tr>
+</table>
+</div>
+
+<p>
+  Now we need to define the commands for each shortcut we want to add:
+</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt12'>/* a command consists of program name and it&#39;s arguments terminated with NULL */</span></td></tr>
+<tr><td><span class='pt12'>/* replace &#39;Headphone&#39; with the name of ALSA device you want to manipulate */</span></td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt12'>/* turn up the volume a little bit */</span> </td></tr>
+<tr><td><span class='pt17'>static</span> <span class='pt17'>const</span> <span class='pt17'>char*</span> volupcmd[] <span class='pt17'>=</span> { <span class='pt8'>&quot;amixer&quot;</span>, <span class='pt8'>&quot;-q&quot;</span>, <span class='pt8'>&quot;sset&quot;</span>, <span class='pt8'>&quot;Headphone&quot;</span>, <span class='pt8'>&quot;5%+&quot;</span>, <span class='pt7'>NULL</span> };</td></tr>
+<tr><td><span class='pt12'>/* turn down the volume a little bit */</span></td></tr>
+<tr><td><span class='pt17'>static</span> <span class='pt17'>const</span> <span class='pt17'>char*</span> voldowncmd[] <span class='pt17'>=</span> { <span class='pt8'>&quot;amixer&quot;</span>, <span class='pt8'>&quot;-q&quot;</span>, <span class='pt8'>&quot;sset&quot;</span>, <span class='pt8'>&quot;Headphone&quot;</span>, <span class='pt8'>&quot;5%-&quot;</span>, <span class='pt7'>NULL</span> };</td></tr>
+<tr><td><span class='pt12'>/* reboot the computer using systemd */</span></td></tr>
+<tr><td><span class='pt17'>static</span> <span class='pt17'>const</span> <span class='pt17'>char*</span> rebootcmd[] <span class='pt17'>=</span> { <span class='pt8'>&quot;systemctl&quot;</span>, <span class='pt8'>&quot;reboot&quot;</span>, <span class='pt7'>NULL</span> };</td></tr>
+<tr><td><span class='pt12'>/* shutdown the computer using systemd */</span></td></tr>
+<tr><td><span class='pt17'>static</span> <span class='pt17'>const</span> <span class='pt17'>char*</span> shutdowncmd[] <span class='pt17'>=</span> { <span class='pt8'>&quot;systemctl&quot;</span>, <span class='pt8'>&quot;poweroff&quot;</span>, <span class='pt7'>NULL</span> };</td></tr>
+</table>
+</div>
+
+<p>Then, we need to specify the shortcuts themselves:</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt12'>/* the modifiers are: 0 for no modifiers, MODKEY for MOD key (by default: Alt)</span></td></tr>
+<tr><td><span class='pt12'>   and ShiftMask for Shift; so, modifier MODKEY|ShiftMask and key XK_r</span></td></tr>
+<tr><td><span class='pt12'>   give use the Alt-Shift-R shortcut                                           */</span></td></tr>
+<tr><td><span class='pt17'>static</span> Key keys[] <span class='pt17'>=</span> {</td></tr>
+<tr><td>  <span class='pt12'>/* modifier         key                      function   argument */</span></td></tr>
+<tr><td>  { <span class='pt7'>0</span>,                XF86XK_AudioRaiseVolume, spawn,     {.<span class='pt10'>v</span> <span class='pt17'>=</span> volupcmd} },</td></tr>
+<tr><td>  { <span class='pt7'>0</span>,                XF86XK_AudioLowerVolume, spawn,     {.<span class='pt10'>v</span> <span class='pt17'>=</span> voldowncmd} },</td></tr>
+<tr><td>  { MODKEY<span class='pt17'>|</span>ShiftMask, XK_r,                    spawn,     {.<span class='pt10'>v</span> <span class='pt17'>=</span> rebootcmd} },</td></tr>
+<tr><td>  { MODKEY<span class='pt17'>|</span>ShiftMask, XK_e,                    spawn,     {.<span class='pt10'>v</span> <span class='pt17'>=</span> shutdowncmd} },</td></tr>
+<tr><td>  <span class='pt17'>...</span></td></tr>
+<tr><td>};</td></tr>
+</table>
+</div>
+
+<p>
+  Recompile and restart dwm and these should work like charm now.
+</p>
+<h5>Wallpapers and other backgrounds</h5>
+<p>
+  If you want the replace the void you see after starting dwm with some pleasant
+  image, the basically-standard way to do this is with the use of
+  <span class="inlineCode">feh</span> (package
+  <span class="inlineCode">feh</span> on Arch Linux).
+  Here's a sample way to set the wallpaper using feh (for more options
+  consult <a href="https://linux.die.net/man/1/feh" target="_blank">
+  feh's manual</a>):
+</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt12'># set a scaled wallpaper located in</span></td></tr>
+<tr><td><span class='pt12'># ~/Images/Wallpapers/wallpaper.jpg</span></td></tr>
+<tr><td><span class='pt13'>feh --bg-scale</span> <span class='pt7'>~</span>/Images/Wallpapers/wallpaper.jpg</td></tr>
+</table>
+</div>
+
+<p>
+  Now, your wallpaper should appear. feh also generates, very thoughtfully,
+  <span class="inlineCode">fehbg</span> script in your home directory.
+  Add it to your autostart applications to set the wallpaper on every
+  dwm start. If you're using a display manager, consult its documentation
+  on how to do it. Otherwise, if you're using xinit, simply add
+  <span class="inlineCode">~/.fehbg &amp;</span> somewhere before
+  the <span class="inlineCode">exec dwm</span> command:
+</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt12'># for example:</span></td></tr>
+<tr><td><span class='pt7'>~</span><span class='pt13'>/.fehbg</span> <span class='pt17'>&amp;</span></td></tr>
+<tr><td><span class='pt13'>exec</span> dwm</td></tr>
+</table>
+</div>
+
+<p>
+  On the other hand, if you'd prefer a simpler background, you can use
+  <span class="inlineCode">xsetroot</span>:
+</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt12'># set a simple gray background</span></td></tr>
+<tr><td><span class='pt13'>xsetroot -solid</span> <span class='pt8'>&#39;#2e3440&#39;</span></td></tr>
+<tr><td><span class='pt12'># set some crazy checkered pattern if you&#39;re feeling retro</span></td></tr>
+<tr><td><span class='pt13'>xsetroot -mod</span> 16 16<span class='pt13'> -bg</span> blue<span class='pt13'> -fg</span> red</td></tr>
+</table>
+</div>
+
+<p>You'll also need to add this command to autostart, for example in case of xinit:</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt13'>xsetroot -solid</span> <span class='pt8'>&#39;#2e3440&#39;</span></td></tr>
+<tr><td><span class='pt13'>exec</span> dwm</td></tr>
+</table>
+</div>
+
+<h3>Conclusion</h3>
+<p>
+  Next time, we'll take care of dwm tray which is pretty useless right now.
+  And of course, here are my configuration files for your reference:
+</p>
+<script src="https://gist.github.com/LazyBvr/b7fb43f17c798fa21c82789a820a0aa1.js"></script>
+<script src="https://gist.github.com/LazyBvr/6195c23d06a8a38a20dc56be392427ee.js"></script>
+<script src="https://gist.github.com/LazyBvr/b90628d9b5ddaf262e5ad5847bfc8184.js"></script>
+
+  </article>
+</div>
+</body>
+</html>

@@ -89,8 +89,9 @@ brief: Getting the statusbar to work.
 <tr><td>updates 0</td></tr>
 <tr><td>mail 0</td></tr>
 </table>
-<div class="filename"><p>~/.tray_state</p></div>
 </div>
+<div class="filename"><p>~/.tray_state</p></div>
+
 
 <h3>Formatting the status</h3>
 <p>
@@ -114,9 +115,8 @@ brief: Getting the statusbar to work.
 <tr><td><span class='pt13'>xsetroot -name</span> <span class='pt8'>&quot;   $</span><span class='pt10'>m</span><span class='pt8'>  |   $</span><span class='pt10'>u</span><span class='pt8'>  |   $</span><span class='pt10'>v</span><span class='pt8'>  |   $</span><span class='pt10'>d</span><span class='pt8'>  |   $</span><span class='pt10'>t</span><span class='pt8'>&quot;</span> <span class='pt17'>&amp;&amp;</span> \</td></tr>
 <tr><td><span class='pt13'>exit</span> 0 <span class='pt17'>||</span> <span class='pt13'>exit</span> 1</td></tr>
 </table>
-<div class="filename"><p>~/.local/bin/update_tray</p></div>
 </div>
-
+<div class="filename"><p>~/.local/bin/update_tray</p></div>
 <p>
   The squares that you may see are the icons from Material Design Icons.
   Feel free to use your own icons and play around with the format.
@@ -142,8 +142,8 @@ brief: Getting the statusbar to work.
 <tr><td>  <span class='pt13'>sleep</span> $<span class='pt10'>INTERVAL</span></td></tr>
 <tr><td><span class='pt13'>done</span></td></tr>
 </table>
-<div class="filename"><p>~/.local/bin/update_time</p></div>
 </div>
+<div class="filename"><p>~/.local/bin/update_time</p></div>
 
 <p>
   We get current time and date in our desired format using <span class="inlineCode">date</span>
@@ -174,8 +174,8 @@ brief: Getting the statusbar to work.
 <tr><td>  <span class='pt13'>sleep</span> $((<span class='pt7'>60</span> <span class='pt17'>-</span> $(<span class='pt13'>date</span> +<span class='pt8'>&#39;%S&#39;</span>)))</td></tr>
 <tr><td><span class='pt13'>done</span></td></tr>
 </table>
-<div class="filename"><p>~/.local/bin/update_time</p></div>
 </div>
+<div class="filename"><p>~/.local/bin/update_time</p></div>
 
 <h3>Volume</h3>
 <p>
@@ -203,8 +203,8 @@ brief: Getting the statusbar to work.
 <tr><td><span class='pt13'>update_tray</span> <span class='pt17'>&amp;&amp;</span> \</td></tr>
 <tr><td><span class='pt13'>exit</span> 0 <span class='pt17'>||</span> <span class='pt13'>exit</span> 1</td></tr>
 </table>
-<div class="filename"><p>~/.local/bin/volume</p></div>
 </div>
+<div class="filename"><p>~/.local/bin/volume</p></div>
 
 <p>
   This is the way the script can be used:
@@ -234,8 +234,8 @@ brief: Getting the statusbar to work.
 <tr><td><span class='pt17'>static</span> <span class='pt17'>const</span> <span class='pt17'>char</span> <span class='pt17'>*</span>volupcmd[]   <span class='pt17'>=</span> { <span class='pt8'>&quot;volume&quot;</span>, <span class='pt8'>&quot;up&quot;</span>, <span class='pt7'>NULL</span> };</td></tr>
 <tr><td><span class='pt17'>static</span> <span class='pt17'>const</span> <span class='pt17'>char</span> <span class='pt17'>*</span>voldowncmd[] <span class='pt17'>=</span> { <span class='pt8'>&quot;volume&quot;</span>, <span class='pt8'>&quot;down&quot;</span>, <span class='pt7'>NULL</span> };</td></tr>
 </table>
-<div class="filename"><p>~/.suckless/dwm-6.2/config.h</p></div>
 </div>
+<div class="filename"><p>~/.suckless/dwm-6.2/config.h</p></div>
 
 <p>(Of course, remember to commit and recompile)</p>
 <h3>Updates</h3>
@@ -277,8 +277,8 @@ brief: Getting the statusbar to work.
 <tr><td>  <span class='pt13'>sleep</span> $<span class='pt10'>INTERVAL</span></td></tr>
 <tr><td><span class='pt13'>done</span></td></tr>
 </table>
-<div class="filename"><p>~/.local/bin/update_updates</p></div>
 </div>
+<div class="filename"><p>~/.local/bin/update_updates</p></div>
 
 <p>
   But this is not the end. We'll probably also want to <strong>update</strong> the number of
@@ -320,8 +320,8 @@ brief: Getting the statusbar to work.
 <tr><td><span class='pt13'>/home/lazybvr/.local/bin/update_tray</span></td></tr>
 <tr><td><span class='pt13'>exit</span> 0</td></tr>
 </table>
-<div class="filename"><p>/etc/pacman.d/hooks.bin/updateupdates</p></div>
 </div>
+<div class="filename"><p>/etc/pacman.d/hooks.bin/updateupdates</p></div>
 
 <p>
   Since <span class="inlineCode">checkupdates</span> may need a few seconds to execute
@@ -352,8 +352,8 @@ brief: Getting the statusbar to work.
 <tr><td>When = PostTransaction</td></tr>
 <tr><td>Exec = /etc/pacman.d/hooks.bin/updateupdates</td></tr>
 </table>
-<div class="filename"><p>/etc/pacman.d/hooks/50-updateupdates.hook</p></div>
 </div>
+<div class="filename"><p>/etc/pacman.d/hooks/50-updateupdates.hook</p></div>
 
 <p>
   You can also change the description to something like
@@ -377,8 +377,8 @@ brief: Getting the statusbar to work.
 <tr><td>  password &quot;your password&quot;</td></tr>
 <tr><td>  keep ssl idle</td></tr>
 </table>
-<div class="filename"><p>~/.fetchmailrc</p></div>
 </div>
+<div class="filename"><p>~/.fetchmailrc</p></div>
 
 <p>
   Keep in mind that you'll most likely need to create
@@ -403,8 +403,8 @@ brief: Getting the statusbar to work.
 <tr><td>  <span class='pt13'>done</span></td></tr>
 <tr><td><span class='pt13'>done</span></td></tr>
 </table>
-<div class="filename"><p>~/.local/bin/update_mail</p></div>
 </div>
+<div class="filename"><p>~/.local/bin/update_mail</p></div>
 
 <p>
   The script will wait for updates from fetchmail, extract the number of all and read messages
@@ -428,8 +428,8 @@ brief: Getting the statusbar to work.
 <tr><td><span class='pt13'>update_updates</span> <span class='pt17'>&amp;</span></td></tr>
 <tr><td><span class='pt13'>exec</span> dwm</td></tr>
 </table>
-<div class="filename"><p>~/.xinitrc</p></div>
 </div>
+<div class="filename"><p>~/.xinitrc</p></div>
 
 <p>
   Have a suckless experience using dwm!

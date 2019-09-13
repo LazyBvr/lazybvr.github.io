@@ -1,5 +1,5 @@
 .paint {
-    font-family: monospace;
+    font-family: monospace, monospace;
     border: 0.125rem solid #000000;
     display: block;
     width: 100%;
@@ -43,9 +43,11 @@
 .paint .pt7 { color: #005cc5; }
 .paint .pt8 { color: #032f62; }
 .filename {
+  font-family: monospace, monospace;
   background-color: #000000;
+  border: 0.125rem solid #000000;
   color: #ffffff;
+  width: 100%;
+  margin: -1em 0 1em 0;
 }
-.filename p {
-  margin-bottom: 0;
-}
+.filename p { margin: 0; }

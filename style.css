@@ -95,7 +95,7 @@ article.brief {
 }
 
 span.inlineCode {
-  font-family: monospace;
+  font-family: monospace, monospace;
 }
 
 a:hover {

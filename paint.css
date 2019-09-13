@@ -42,4 +42,10 @@
 .paint .pt1 { background: #005cc5; }
 .paint .pt7 { color: #005cc5; }
 .paint .pt8 { color: #032f62; }
-
+.filename {
+  background-color: #000000;
+  color: #ffffff;
+}
+.filename p {
+  margin-bottom: 0;
+}

@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<!--
+title: dwm, part 3
+brief: Getting the statusbar to work.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <link rel="stylesheet" type="text/css" href="../style.css"/>
+  <link rel="stylesheet" type="text/css" href="../paint.css"/>
+  <title>lazybvr's notes / dwm, part 3</title>
+</head>
+<body>
+<header>
+  <nav>
+    <a title="home" href="../index.html">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v 8z"></path>
+        <path d="M0 0h24v24H0z" fill="none"></path>
+      </svg>
+    </a>
+    <a title="about" href="../about.html">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+        <path d="M0 0h24v24H0z" fill="none"></path>
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"></path>
+      </svg>
+    </a>
+    <h1>lazybvr's notes</h1>
+  </nav>
+</header>
+<div class="content">
+  <article>
+    <h2>dwm, part 3</h2>
+    <p class="date">2019-09-13</p>
+    <p class="clear"></p>
+    <p>
+  In this last, for now, note on moving to our new dwm workspace we are going to make the <em>statusbar</em>
+  actually display some status information.
+</p>
+<h3>Setting the bar</h3>
+<p>
+  If you followed my instructions in the <a href="2019-08-28-dwm-part-1.html" target="_blank">first part</a> closely
+  enough, you should now have access to the <span class="inlineCode">xsetroot</span> application.
+  Apart from setting simple background colors or patterns, <span class="inlineCode">xsetroot</span>
+  is the main means of interacting with our statusbar.
+</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt12'># set the contents of statusbar to &#39;Hi!&#39;</span></td></tr>
+<tr><td><span class='pt13'>xsetroot -name</span> <span class='pt8'>&#39;Hi!&#39;</span></td></tr>
+</table>
+</div>
+
+<p>
+  The whole issue of statusbar boils down therefore to feeding <span class="inlineCode">xsetroot -name</span>
+  appropriate strings at appropriate times. This of course calls for use of a programming language of some
+  sort. The choice of language is all yours and accomplishing the task makes for a really nice side project.
+  Since managing the statusbar in our case will revolve mostly around calling different applications and
+  passing the results between them, <span class="inlineCode">sh</span> will be the right tool for the job.
+</p>
+<h3>Technical disclaimer</h3>
+<p>
+  The following assumes that you make all the scripts executable
+  (e.g. <span class="inlineCode">chmod +x myscript</span>)
+  and place them in a way they can be found in <span class="inlineCode">PATH</span>
+  (otherwise, you can just replace the short name of the script with an absolute path
+  everywhere it occurs).
+</p>
+<h3>How will this work?</h3>
+<p>
+  Since every aspect of system status we'll watch for depends on different scheduling or triggers,
+  each one will be cared for by dedicated script running in the background. A script will fetch
+  information when the time is right and call the statusbar-updating script to update the statusbar
+  with new data. Of course, we'll need a way to pass said information around and to remember all
+  the other status values.
+</p>
+<h3>State of status</h3>
+<p>
+  For this purpose, a simple <span class="inlineCode">key value</span>-style file will do just fine.
+  I'll name mine <span class="inlineCode">~/.tray_state</span> and here's how it looks in its
+  zero state:
+</p>
+<div class='paint'>
+<table>
+<tr><td>time 00:00</td></tr>
+<tr><td>date 0000-00-00</td></tr>
+<tr><td>volume 00.00dB</td></tr>
+<tr><td>updates 0</td></tr>
+<tr><td>mail 0</td></tr>
+</table>
+<div class="filename"><p>~/.tray_state</p></div>
+</div>
+
+<h3>Formatting the status</h3>
+<p>
+  Now we need a way to combine all the values we'll be gathering in <span class="inlineCode">.tray_state</span>
+  in a pleasant manner an set the statusbar with resulting string. That's just the job for
+  <span class="inlineCode">update_tray</span>:
+</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt12'>#!/bin/sh</span></td></tr>
+<tr><td><span class='pt10'>STATE</span><span class='pt17'>=</span><span class='pt7'>~</span><span class='pt8'>/.tray_state</span></td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt12'># extract all the values...</span></td></tr>
+<tr><td><span class='pt10'>t</span><span class='pt17'>=</span><span class='pt8'>&quot;$(</span><span class='pt7'>awk</span><span class='pt8'> &#39;/^time/ {print $2}&#39; &quot;$</span><span class='pt10'>STATE</span><span class='pt8'>&quot;)&quot;</span></td></tr>
+<tr><td><span class='pt10'>d</span><span class='pt17'>=</span><span class='pt8'>&quot;$(</span><span class='pt7'>awk</span><span class='pt8'> &#39;/^date/ {print $2}&#39; &quot;$</span><span class='pt10'>STATE</span><span class='pt8'>&quot;)&quot;</span></td></tr>
+<tr><td><span class='pt10'>v</span><span class='pt17'>=</span><span class='pt8'>&quot;$(</span><span class='pt7'>awk</span><span class='pt8'> &#39;/^volume/ {print $2}&#39; &quot;$</span><span class='pt10'>STATE</span><span class='pt8'>&quot;)&quot;</span></td></tr>
+<tr><td><span class='pt10'>u</span><span class='pt17'>=</span><span class='pt8'>&quot;$(</span><span class='pt7'>awk</span><span class='pt8'> &#39;/^updates/ {print $2}&#39; &quot;$</span><span class='pt10'>STATE</span><span class='pt8'>&quot;)&quot;</span></td></tr>
+<tr><td><span class='pt10'>m</span><span class='pt17'>=</span><span class='pt8'>&quot;$(</span><span class='pt7'>awk</span><span class='pt8'> &#39;/^mail/ {print $2}&#39; &quot;$</span><span class='pt10'>STATE</span><span class='pt8'>&quot;)&quot;</span></td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt12'># set the tray</span></td></tr>
+<tr><td><span class='pt13'>xsetroot -name</span> <span class='pt8'>&quot;   $</span><span class='pt10'>m</span><span class='pt8'>  |   $</span><span class='pt10'>u</span><span class='pt8'>  |   $</span><span class='pt10'>v</span><span class='pt8'>  |   $</span><span class='pt10'>d</span><span class='pt8'>  |   $</span><span class='pt10'>t</span><span class='pt8'>&quot;</span> <span class='pt17'>&amp;&amp;</span> \</td></tr>
+<tr><td><span class='pt13'>exit</span> 0 <span class='pt17'>||</span> <span class='pt13'>exit</span> 1</td></tr>
+</table>
+<div class="filename"><p>~/.local/bin/update_tray</p></div>
+</div>
+
+<p>
+  The squares that you may see are the icons from Material Design Icons.
+  Feel free to use your own icons and play around with the format.
+</p>
+<h3>Time and date</h3>
+<p>
+  Below is the script I use for updating my time and date.
+</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt12'>#!/bin/sh</span></td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt10'>STATE</span><span class='pt17'>=</span><span class='pt7'>~</span><span class='pt8'>/.tray_state</span></td></tr>
+<tr><td><span class='pt10'>INTERVAL</span><span class='pt17'>=</span><span class='pt8'>60</span></td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt17'>while</span> <span class='pt13'>:</span><span class='pt17'>;</span> <span class='pt13'>do</span></td></tr>
+<tr><td>  <span class='pt10'>t</span><span class='pt17'>=</span><span class='pt8'>&quot;$(</span><span class='pt7'>date</span><span class='pt8'> +&#39;%R&#39;)&quot;</span> <span class='pt12'># 24-hour HH:MM format</span></td></tr>
+<tr><td>  <span class='pt10'>d</span><span class='pt17'>=</span><span class='pt8'>&quot;$(</span><span class='pt7'>date</span><span class='pt8'> +&#39;%F&#39;)&quot;</span> <span class='pt12'># YYYY-MM-DD format</span></td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td>  <span class='pt13'>flock</span> <span class='pt8'>&quot;$</span><span class='pt10'>STATE</span><span class='pt8'>&quot;</span> \</td></tr>
+<tr><td>    gawk<span class='pt13'> -i</span> inplace<span class='pt13'> -v</span> t=<span class='pt8'>&quot;$</span><span class='pt10'>t</span><span class='pt8'>&quot;</span><span class='pt13'> -v</span> d=<span class='pt8'>&quot;$</span><span class='pt10'>d</span><span class='pt8'>&quot;</span> <span class='pt8'>&#39;/^time/ {$2=t}; /^date/ {$2=d}; {print}&#39;</span> <span class='pt8'>&quot;$</span><span class='pt10'>STATE</span><span class='pt8'>&quot;</span></td></tr>
+<tr><td>  <span class='pt13'>update_tray</span></td></tr>
+<tr><td>  <span class='pt13'>sleep</span> $<span class='pt10'>INTERVAL</span></td></tr>
+<tr><td><span class='pt13'>done</span></td></tr>
+</table>
+<div class="filename"><p>~/.local/bin/update_time</p></div>
+</div>
+
+<p>
+  We get current time and date in our desired format using <span class="inlineCode">date</span>
+  (try <span class="inlineCode">date --help</span> for information on available formatting
+  directives). Then, we lock the state file for the duration of the occuring modification using
+  <span class="inlineCode">flock</span>.
+</p>
+<p>
+  Frankly, I haven't run into any concurrency-related
+  problems without <span class="inlineCode">flock</span> but better be safe than sorry.
+  Ultimately, it's up to you.
+</p>
+<p>
+  Finally, we update date and time with new values using
+  <span class="inlineCode">gawk</span>, trigger the statusbar update and wait for
+  the next minute to pass.
+</p>
+<p>
+  You may have noticed that depending on the time the above script is started,
+  your clock may be late up to a minute. I personally don't find it to be a relevant
+  issue, however you can correct <span class="inlineCode">INTERVAL</span> to be the
+  exact number of seconds till the next minute. For instance:
+</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt17'>while</span> <span class='pt13'>:</span><span class='pt17'>;</span> <span class='pt13'>do</span></td></tr>
+<tr><td>  <span class='pt12'># ...</span></td></tr>
+<tr><td>  <span class='pt13'>sleep</span> $((<span class='pt7'>60</span> <span class='pt17'>-</span> $(<span class='pt13'>date</span> +<span class='pt8'>&#39;%S&#39;</span>)))</td></tr>
+<tr><td><span class='pt13'>done</span></td></tr>
+</table>
+<div class="filename"><p>~/.local/bin/update_time</p></div>
+</div>
+
+<h3>Volume</h3>
+<p>
+  Here's the script I use to manage the volume level of an ALSA device and update the statusbar
+  accordingly:
+</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt12'>#!/bin/sh</span></td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt10'>DEVICE</span><span class='pt17'>=</span><span class='pt8'>Headphone</span></td></tr>
+<tr><td><span class='pt10'>STATE</span><span class='pt17'>=</span><span class='pt7'>~</span><span class='pt8'>/.tray_state</span></td></tr>
+<tr><td><span class='pt10'>STEP</span><span class='pt17'>=</span><span class='pt8'>5%</span></td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt17'>if</span> <span class='pt13'>[</span> <span class='pt8'>&quot;$</span><span class='pt10'>1</span><span class='pt8'>&quot;</span> <span class='pt17'>=</span> up <span class='pt13'>]</span><span class='pt17'>;</span> <span class='pt17'>then</span></td></tr>
+<tr><td>  <span class='pt13'>amixer -q</span> sset <span class='pt8'>&quot;$</span><span class='pt10'>DEVICE</span><span class='pt8'>&quot;</span> <span class='pt8'>&quot;$</span><span class='pt10'>STEP</span><span class='pt8'>&quot;</span>+ <span class='pt17'>||</span> <span class='pt13'>exit</span> 1</td></tr>
+<tr><td><span class='pt17'>elif</span> <span class='pt13'>[</span> <span class='pt8'>&quot;$</span><span class='pt10'>1</span><span class='pt8'>&quot;</span> <span class='pt17'>=</span> down <span class='pt13'>]</span><span class='pt17'>;</span> <span class='pt17'>then</span></td></tr>
+<tr><td>  <span class='pt13'>amixer -q</span> sset <span class='pt8'>&quot;$</span><span class='pt10'>DEVICE</span><span class='pt8'>&quot;</span> <span class='pt8'>&quot;$</span><span class='pt10'>STEP</span><span class='pt8'>&quot;</span>- <span class='pt17'>||</span> <span class='pt13'>exit</span> 1</td></tr>
+<tr><td><span class='pt13'>else</span></td></tr>
+<tr><td>  <span class='pt13'>exit</span> 1</td></tr>
+<tr><td><span class='pt13'>fi</span></td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt10'>vol</span><span class='pt17'>=</span><span class='pt8'>&quot;$(</span><span class='pt7'>amixer</span><span class='pt8'> sget &quot;$</span><span class='pt10'>DEVICE</span><span class='pt8'>&quot; </span><span class='pt17'>|</span><span class='pt8'> </span><span class='pt7'>awk</span><span class='pt8'> &#39;END {gsub(/[][]/, &quot;&quot;); print $6}&#39;)&quot;</span></td></tr>
+<tr><td><span class='pt13'>flock</span> <span class='pt8'>&quot;$</span><span class='pt10'>STATE</span><span class='pt8'>&quot;</span> gawk<span class='pt13'> -i</span> inplace<span class='pt13'> -v</span> vol=<span class='pt8'>&quot;$</span><span class='pt10'>vol</span><span class='pt8'>&quot;</span> <span class='pt8'>&#39;/volume/ {$2=vol}; {print}&#39;</span> <span class='pt8'>&quot;$</span><span class='pt10'>STATE</span><span class='pt8'>&quot;</span> <span class='pt17'>&amp;&amp;</span> \</td></tr>
+<tr><td><span class='pt13'>update_tray</span> <span class='pt17'>&amp;&amp;</span> \</td></tr>
+<tr><td><span class='pt13'>exit</span> 0 <span class='pt17'>||</span> <span class='pt13'>exit</span> 1</td></tr>
+</table>
+<div class="filename"><p>~/.local/bin/volume</p></div>
+</div>
+
+<p>
+  This is the way the script can be used:
+</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt12'># increase the volume and update the statusbar</span></td></tr>
+<tr><td><span class='pt13'>volume</span> up</td></tr>
+<tr><td><span class='pt12'># decrease the volume and update the statusbar</span></td></tr>
+<tr><td><span class='pt13'>volume</span> down</td></tr>
+</table>
+</div>
+
+<p>
+  You may need to change your <span class="inlineCode">DEVICE</span> (you can get a list
+  of available devices using <span class="inlineCode">amixer</span>) and may want to change
+  the value of <span class="inlineCode">STEP</span> by which the volume is changed.
+</p>
+<p>
+  Obviously, it's quite handy to have these commands bound to your <i>volume up</i>/<i>volume down</i>
+  keyboard keys, so let's update dwm's <span class="inlineCode">config.h</span>. We have defined
+  <span class="inlineCode">volupcmd</span> and <span class="inlineCode">voldowncmd</span>
+  in the previous part of the tutorial and now we just need to change them:
+</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt17'>static</span> <span class='pt17'>const</span> <span class='pt17'>char</span> <span class='pt17'>*</span>volupcmd[]   <span class='pt17'>=</span> { <span class='pt8'>&quot;volume&quot;</span>, <span class='pt8'>&quot;up&quot;</span>, <span class='pt7'>NULL</span> };</td></tr>
+<tr><td><span class='pt17'>static</span> <span class='pt17'>const</span> <span class='pt17'>char</span> <span class='pt17'>*</span>voldowncmd[] <span class='pt17'>=</span> { <span class='pt8'>&quot;volume&quot;</span>, <span class='pt8'>&quot;down&quot;</span>, <span class='pt7'>NULL</span> };</td></tr>
+</table>
+<div class="filename"><p>~/.suckless/dwm-6.2/config.h</p></div>
+</div>
+
+<p>(Of course, remember to commit and recompile)</p>
+<h3>Updates</h3>
+<p>
+  It would be neat if we could know how many software updates we have available.
+  Since it's a distro-dependent step, I'll customarily provide a way to do it on
+  Arch Linux.
+</p>
+<p>
+  First, we need to make sure we have <span class="inlineCode">pacman-contrib</span>
+  package installed as it provides very handy <span class="inlineCode">checkupdates</span>
+  script that allows us to check for updates without messing with the actual pacman database:
+</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt13'>sudo</span> pacman<span class='pt13'> -S --needed</span> pacman-contrib</td></tr>
+</table>
+</div>
+
+<p>
+  You can check how it works - nothing bad will happen, which is the point.
+  Either way, <span class="inlineCode">checkupdates</span> returns a list
+  of packages that can be updated. Therefore, all we need to do to determine
+  the number of updates is to count the number of lines in its output.
+  And here's the script:
+</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt12'>#!/bin/sh</span></td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt12'># check for updates every 2h</span></td></tr>
+<tr><td><span class='pt10'>INTERVAL</span><span class='pt17'>=</span><span class='pt8'>7200</span></td></tr>
+<tr><td><span class='pt10'>STATE</span><span class='pt17'>=</span><span class='pt7'>~</span><span class='pt8'>/.tray_state</span></td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt17'>while</span> <span class='pt13'>:</span><span class='pt17'>;</span> <span class='pt13'>do</span></td></tr>
+<tr><td>  <span class='pt10'>updates</span><span class='pt17'>=</span><span class='pt8'>&quot;$(</span><span class='pt7'>checkupdates</span><span class='pt8'> </span><span class='pt17'>|</span><span class='pt8'> </span><span class='pt7'>wc -l</span><span class='pt8'>)&quot;</span></td></tr>
+<tr><td>  <span class='pt13'>flock</span> <span class='pt8'>&quot;$</span><span class='pt10'>STATE</span><span class='pt8'>&quot;</span> gawk<span class='pt13'> -i</span> inplace<span class='pt13'> -v</span> u=<span class='pt8'>&quot;$</span><span class='pt10'>updates</span><span class='pt8'>&quot;</span> <span class='pt8'>&#39;/^updates/ {$2 = u}; {print}&#39;</span> <span class='pt8'>&quot;$</span><span class='pt10'>STATE</span><span class='pt8'>&quot;</span></td></tr>
+<tr><td>  <span class='pt13'>update_tray</span></td></tr>
+<tr><td>  <span class='pt13'>sleep</span> $<span class='pt10'>INTERVAL</span></td></tr>
+<tr><td><span class='pt13'>done</span></td></tr>
+</table>
+<div class="filename"><p>~/.local/bin/update_updates</p></div>
+</div>
+
+<p>
+  But this is not the end. We'll probably also want to <strong>update</strong> the number of
+  <strong>updates</strong> after running a pacman <strong>update</strong>.
+</p>
+<p>
+  Thankfully, doing so will be a breeze since pacman allows us to set up an after-update hook
+  to achieve just that.
+</p>
+<p>
+  We'll start by creating directories for hooks themselves and the applications they'll
+  be calling:
+</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt12'># create `hooks` for the hooks and `hooks.bin` for the applications</span></td></tr>
+<tr><td><span class='pt13'>sudo</span> mkdir /etc/pacman.d/hooks{,.bin}</td></tr>
+</table>
+</div>
+
+<p>
+  Next, let's create a script to <strong>update</strong> the <strong>update</strong> count.
+  We'll place it in <span class="inlineCode">/etc/pacman.d/hooks.bin</span> and call it...
+  <span class="inlineCode">updateupdates</span>, I guess?
+</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt12'>#!/bin/sh</span></td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt12'># we need a full path for the state file</span></td></tr>
+<tr><td><span class='pt12'># since the script will be run by root</span></td></tr>
+<tr><td><span class='pt10'>STATE</span><span class='pt17'>=</span><span class='pt8'>/home/lazybvr/.tray_state</span></td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt10'>updates</span><span class='pt17'>=</span><span class='pt8'>&quot;$(</span><span class='pt7'>checkupdates</span><span class='pt8'> </span><span class='pt17'>|</span><span class='pt8'> </span><span class='pt7'>wc -l</span><span class='pt8'>)&quot;</span></td></tr>
+<tr><td><span class='pt13'>flock</span> <span class='pt8'>&quot;$</span><span class='pt10'>STATE</span><span class='pt8'>&quot;</span> gawk<span class='pt13'> -i</span> inplace<span class='pt13'> -v</span> u=<span class='pt8'>&quot;$</span><span class='pt10'>updates</span><span class='pt8'>&quot;</span> <span class='pt8'>&#39;/^updates/ {$2 = u}; {print}&#39;</span> <span class='pt8'>&quot;$</span><span class='pt10'>STATE</span><span class='pt8'>&quot;</span></td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt12'># and so we need to specify the absolute path to `update_tray`</span></td></tr>
+<tr><td><span class='pt12'># since it won&#39;t be in root&#39;s PATH</span></td></tr>
+<tr><td><span class='pt13'>/home/lazybvr/.local/bin/update_tray</span></td></tr>
+<tr><td><span class='pt13'>exit</span> 0</td></tr>
+</table>
+<div class="filename"><p>/etc/pacman.d/hooks.bin/updateupdates</p></div>
+</div>
+
+<p>
+  Since <span class="inlineCode">checkupdates</span> may need a few seconds to execute
+  and we're generally supposed to perform full updates only, we can also assume
+  (not truly correctly) that the number of available updates after the update
+  will always be 0 and simply set our <span class="inlineCode">updates</span>
+  value to 0:
+</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt13'>flock</span> <span class='pt8'>&quot;$</span><span class='pt10'>STATE</span><span class='pt8'>&quot;</span> gawk<span class='pt13'> -i</span> inplace <span class='pt8'>&#39;/^updates/ {$2 = 0}; {print}&#39;</span> <span class='pt8'>&quot;$</span><span class='pt10'>STATE</span><span class='pt8'>&quot;</span></td></tr>
+</table>
+</div>
+
+<p>
+  Either way, now's the time for the hook. We'll call it
+  <span class="inlineCode">/etc/pacman.d/hooks/50-updateupdates.hook</span>:
+</p>
+<div class='paint'>
+<table>
+<tr><td>[Trigger]</td></tr>
+<tr><td>Operation = Upgrade</td></tr>
+<tr><td>Type = Package</td></tr>
+<tr><td>Target = *</td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td>[Action]</td></tr>
+<tr><td>Description = Checking for additional updates...</td></tr>
+<tr><td>When = PostTransaction</td></tr>
+<tr><td>Exec = /etc/pacman.d/hooks.bin/updateupdates</td></tr>
+</table>
+<div class="filename"><p>/etc/pacman.d/hooks/50-updateupdates.hook</p></div>
+</div>
+
+<p>
+  You can also change the description to something like
+  <span class="inlineCode">Zeroing out update count...</span> if that's what you ended up doing
+  in <span class="inlineCode">updateupdates</span>.
+</p>
+<h3>Mail</h3>
+<p>
+  Here we'll set up a simple push-like email checker for a Google Mail account.
+  For that, we need <span class="inlineCode">fetchmail</span> (package <span class="inlineCode">fetchmail</span>
+  <a href="https://aur.archlinux.org/packages/fetchmail" target="_blank">on AUR</a>).
+</p>
+<p>
+  Next, we need to configure our account by creating <span class="inlineCode">.fetchmailrc</span>
+  file in our home directory:
+</p>
+<div class='paint'>
+<table>
+<tr><td>poll imap.gmail.com port 993 protocol IMAP</td></tr>
+<tr><td>  user &quot;your email&quot;</td></tr>
+<tr><td>  password &quot;your password&quot;</td></tr>
+<tr><td>  keep ssl idle</td></tr>
+</table>
+<div class="filename"><p>~/.fetchmailrc</p></div>
+</div>
+
+<p>
+  Keep in mind that you'll most likely need to create
+  <a href="https://support.google.com/accounts/answer/185833">an application password</a> for
+  fetchmail.
+</p>
+<p>
+  Now we just need the script itself:
+</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt12'>#!/bin/sh</span></td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt10'>STATE</span><span class='pt17'>=</span><span class='pt7'>~</span><span class='pt8'>/.tray_state</span></td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt17'>while</span> <span class='pt13'>:</span><span class='pt17'>;</span> <span class='pt13'>do</span></td></tr>
+<tr><td>  <span class='pt17'>while</span> <span class='pt13'>!</span> ping<span class='pt13'> -c</span> 1 google.com<span class='pt17'>;</span> <span class='pt17'>do</span> <span class='pt13'>:</span><span class='pt17'>;</span> <span class='pt13'>done</span></td></tr>
+<tr><td>  <span class='pt13'>fetchmail --check</span> <span class='pt7'>2</span><span class='pt17'>&gt;</span>/dev/null <span class='pt17'>|</span> <span class='pt17'>while</span> <span class='pt13'>read</span> <span class='pt13'>-r</span> line<span class='pt17'>;</span> <span class='pt13'>do</span></td></tr>
+<tr><td>    <span class='pt10'>newmail</span><span class='pt17'>=</span><span class='pt8'>&quot;$(</span><span class='pt13'>echo</span><span class='pt8'> &quot;$</span><span class='pt10'>line</span><span class='pt8'>&quot; </span><span class='pt17'>|</span><span class='pt8'> </span><span class='pt7'>awk</span><span class='pt8'> &#39;{gsub(/[()]/, &quot;&quot;); print $1 - $3}&#39;)&quot;</span></td></tr>
+<tr><td>    <span class='pt13'>flock</span> <span class='pt8'>&quot;$</span><span class='pt10'>STATE</span><span class='pt8'>&quot;</span> gawk<span class='pt13'> -i</span> inplace<span class='pt13'> -v</span> m=<span class='pt8'>&quot;$</span><span class='pt10'>newmail</span><span class='pt8'>&quot;</span> <span class='pt8'>&#39;/^mail/ {$2 = m}; {print}&#39;</span> <span class='pt8'>&quot;$</span><span class='pt10'>STATE</span><span class='pt8'>&quot;</span></td></tr>
+<tr><td>    <span class='pt13'>update_tray</span></td></tr>
+<tr><td>  <span class='pt13'>done</span></td></tr>
+<tr><td><span class='pt13'>done</span></td></tr>
+</table>
+<div class="filename"><p>~/.local/bin/update_mail</p></div>
+</div>
+
+<p>
+  The script will wait for updates from fetchmail, extract the number of all and read messages
+  and perform simple arithmetic to provide the statusbar with the number of unread messages.
+</p>
+<p>
+  The line <span class="inlineCode">while ! ping...</span> is added for additional robustness -
+  on my computer fetchmail happens to start before the internet connection is estabilished,
+  therefore terminating the script. To work around that, the script pings an arbitrary
+  internet host until it's available. If you don't need such a feature, simply remove it.
+</p>
+<h3>Putting it all together</h3>
+<p>
+  All that's left now is to run the scripts on login. If you're using
+  <span class="inlineCode">xinit</span>, here's how you may do it:
+</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt13'>update_mail</span> <span class='pt17'>&amp;</span></td></tr>
+<tr><td><span class='pt13'>update_time</span> <span class='pt17'>&amp;</span></td></tr>
+<tr><td><span class='pt13'>update_updates</span> <span class='pt17'>&amp;</span></td></tr>
+<tr><td><span class='pt13'>exec</span> dwm</td></tr>
+</table>
+<div class="filename"><p>~/.xinitrc</p></div>
+</div>
+
+<p>
+  Have a suckless experience using dwm!
+</p>
+
+  </article>
+</div>
+</body>
+</html>

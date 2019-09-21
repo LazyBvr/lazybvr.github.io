@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<!--
+title: A shell for the 90s
+brief: Taking a look at the awesome features of FISH.
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta name="description" content="Taking a look at the awesome features of FISH."/>
+  <meta name="og:title" content="lazybvr's notes / A shell for the 90s"/>
+  <meta name="og:description" content="Taking a look at the awesome features of FISH."/>
+  <link rel="stylesheet" type="text/css" href="../style.css"/>
+  <link rel="stylesheet" type="text/css" href="../paint.css"/>
+  <title>lazybvr's notes / A shell for the 90s</title>
+</head>
+<body>
+<header>
+  <nav>
+    <a title="home" href="../index.html">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v 8z"></path>
+        <path d="M0 0h24v24H0z" fill="none"></path>
+      </svg>
+    </a>
+    <a title="about" href="../about.html">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+        <path d="M0 0h24v24H0z" fill="none"></path>
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"></path>
+      </svg>
+    </a>
+    <h1>lazybvr's notes</h1>
+  </nav>
+</header>
+<div class="content">
+<article>
+<h2>A shell for the 90s</h2>
+<p class="date">2019-09-21</p>
+<p class="clear"></p>
+<p>
+  The market of UNIX shells is a ruthless one.
+  There's the hegemon, <span class="inlineCode">bash</span>, nowadays basically <strong>the shell</strong>.
+  Amongst all my interlocutors to date, I've been the only one to refer to the family of more or less
+  <span class="inlineCode">Bourne Shell</span>-compliant shells as <em>shells</em> or <em>sh(s)</em>.
+  Then there's slowly (but steadily, it seems) gaining popularity <span class="inlineCode">zsh</span>.
+  Finally, on the verges of the shell world lay others, like <span class="inlineCode">dash</span>
+  and many <span class="inlineCode">ksh</span> variants; some having faded into obscurity, other
+  simply specialized.
+</p>
+<h3>The Friendly Interactive Shell</h3>
+<p>
+  And then there's <span class="inlineCode">fish</span>, a somewhat tightly kept secret.
+  I'd found it two years ago and... haven't looked back since.
+</p>
+<p>
+  <span class="inlineCode">fish</span> aims to serve both as an interactive and scripting shell, offering unique features in either avenue.
+  Firstly, let's take a look at the interactive aspect, so prominently featured in this shell's name.
+</p>
+<h3>Interactive use</h3>
+<p>
+  The first thing that strikes the eye is that <span class="inlineCode">fish</span> is remarkably pleasant to use with its default configuration.
+  In the case of <span class="inlineCode">zsh</span>, it's difficult to imagine using it straight away without grabbing the excellent
+  <a href="https://github.com/robbyrussell/oh-my-zsh" target="_blank">oh-my-zsh</a>.
+  While <span class="inlineCode">fish</span> offers its corresponding
+  <a href="https://github.com/oh-my-fish/oh-my-fish" target="_blank">oh-my-fish</a>,
+  the truth is - after the installation you're ready to go with a clear prompt and comfortable tab-completion (that works for command flags as well!).
+</p>
+<figure>
+  <img src="../images/default-fish.png" alt="FISH in its default configuration"/>
+  <figcaption>Out-of-the-box FISH, showing syntax highlighting and advanced command completion.</figcaption>
+</figure>
+<p>
+  The two most iconic features of <span class="inlineCode">fish</span> are, however, its syntax highlighting and handy command history preview.
+</p>
+<p>
+  The syntax highlighting in the command-line may sound a bit redundant at first, however after a short while, the sole possibility to validate the commands you type in on the fly turns out to be a must-have feature.
+</p>
+<p>
+  Quit scrolling aimlessly through your command history!
+  While this is still a possibility with <span class="inlineCode">fish</span>, it will also complete the commands you write based on the ones you've written in the past.
+  It is invaluable in the case of commands too complex to remember, yet too rarely used to be put in a script (that is if you're as lazy as me).
+</p>
+<figure>
+  <img src="../images/fish-command-completion.png" alt="FISH command completion">
+  <figcaption>History-aware command completion in action.</figcaption>
+</figure>
+<h3>Scripting use</h3>
+<p>
+  As a rule of thumb, UNIX shells resemble closely, as well as provide a solid amount of backward compatibility with POSIX <span class="inlineCode">sh</span>.
+  In the meantime, <span class="inlineCode">fish</span> took on the challenge of tidying up the language.
+  The result?
+  It looks better, all right.
+  But is it worth to make a switch from the classic <span class="inlineCode">sh</span>?
+  The answer is up to you.
+</p>
+<p>
+  Let's start with variable declaration.
+  Now it's handled exclusively by the <span class="inlineCode">set</span> command, presenting a unified way to declare local, exported and universal variables.
+</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt12'># Global variable declaration. Equivalent to `foo=bar`.</span></td></tr>
+<tr><td><span class='pt13'>set</span> foo bar</td></tr>
+<tr><td><span class='pt12'># Exported variable declaration. Equivalent to `export bar=baz`.</span></td></tr>
+<tr><td><span class='pt13'>set</span> <span class='pt13'>-x</span> bar baz</td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt12'># Function declaration.</span></td></tr>
+<tr><td><span class='pt17'>function</span> <span class='pt13'>print_foo</span></td></tr>
+<tr><td>  <span class='pt12'># Local variable declaration. Equivalent to `local foo=baz` in bash.</span></td></tr>
+<tr><td>  <span class='pt13'>set -l</span> foo baz</td></tr>
+<tr><td>  <span class='pt12'># To reassign to a local variable, simply use `set` without additional flags.</span></td></tr>
+<tr><td>  <span class='pt12'># This won&#39;t affect the global `foo` variable.</span></td></tr>
+<tr><td>  <span class='pt13'>set</span> foo quux</td></tr>
+<tr><td>  <span class='pt13'>echo</span> $foo</td></tr>
+<tr><td><span class='pt13'>end</span</td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt12'># Will output: `quux`.</span></td></tr>
+<tr><td><span class='pt13'>print_foo</span></td></tr>
+<tr><td><span class='pt12'># Will output: `bar`.</span></td></tr>
+<tr><td><span class='pt13'>echo</span> $foo</td></tr>
+<tr><td><span class='pt12'># Will output: `baz`.</span></td></tr>
+<tr><td><span class='pt13'>echo</span> $bar</td></tr>
+</table>
+</div>
+
+<p>
+  Now, what exactly is a universal variable?
+  Pretty much, it's an equivalent of a variable exported in
+  <span class="inlineCode">.bashrc</span> or <span class="inlineCode">.zshrc</span>.
+  Respectively, if we'd also made it exported, we'd get a
+  <span class="inlineCode">.zshenv</span>-style effect.
+  In other words, a universally declared variable will persist across every <span class="inlineCode">fish</span> session.
+  Quite handy!
+</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt12'># Persistently add `~/.local/bin` to our PATH.</span></td></tr>
+<tr><td><span class='pt12'># Equivalent to `export PATH=~/.local/bin:$PATH` placed in `.bashrc` file.</span></td></tr>
+<tr><td><span class='pt13'>set</span> -U fish_user_paths <span class='pt7'>~</span>/.local/bin $<span class='pt10'>fish_user_paths</span></td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt12'># Persistently set our C compiler and make it available to all applications.</span></td></tr>
+<tr><td><span class='pt12'># Equivalent to `export CC=clang` placed in `.zshenv` file.</span></td></tr>
+<tr><td><span class='pt13'>set</span> -Ux CC clang</td></tr>
+</table>
+</div>
+
+
+<p>
+  According to many (myself included), the most notorious change introduced by <span class="inlineCode">fish</span> is the replacement of <span class="inlineCode">$()</span> by even more concise
+  <span class="inlineCode">()</span>.
+  It's not challenging to grok, however, it's something you'll need to keep in your mind when copying ready-made commands from the web.
+</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt12'># The standard way to capture command output.</span></td></tr>
+<tr><td><span class='pt13'>sh -c</span> <span class='pt8'>&#39;</span></td></tr>
+<tr><td><span class='pt8'>lines=$(grep . source.c | wc -l)</span></td></tr>
+<tr><td><span class='pt8'>echo &quot;$lines lines of code in the file, $lines lines of code.&quot;</span></td></tr>
+<tr><td><span class='pt8'>&#39;</span></td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt12'># The fish way to capture command output, notice the missing `$`.</span></td></tr>
+<tr><td><span class='pt13'>set</span> -l lines (grep . source.c <span class='pt17'>|</span> <span class='pt13'>wc -l</span>)</td></tr>
+<tr><td><span class='pt13'>echo</span> <span class='pt8'>&quot;$</span><span class='pt10'>lines</span><span class='pt8'> lines of code in the file, $</span><span class='pt10'>lines</span><span class='pt8'> lines of code.&quot;</span></td></tr>
+</table>
+</div>
+<p>The problem becomes real when we deal with multi-line strings, however.</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt12'># The standard way to capture multi-line command output as a single string.</span></td></tr>
+<tr><td><span class='pt13'>sh -c</span> <span class='pt8'>&#39;</span></td></tr>
+<tr><td><span class='pt8'>i=1</span></td></tr>
+<tr><td><span class='pt8'>for line in &quot;$(echo -e &quot;I\'m\nmulti-line!&quot;)&quot;; do</span></td></tr>
+<tr><td><span class='pt8'>  printf "%d. %s\n" $i &quot;$line&quot;</span></td></tr>
+<tr><td><span class='pt8'>  i=$((i + 1))</span></td></tr>
+<tr><td><span class='pt8'>done</span></td></tr>
+<tr><td><span class='pt8'>&#39;</span></td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt12'># The fish way, quite unfortunately, doesn&#39;t really exist.</span></td></tr>
+<tr><td><span class='pt12'># If applicable, you can join the lines of output with a character different</span></td></tr>
+<tr><td><span class='pt12'># than `\n`, using the `string` builtin. For instance, with ` `:</span></td></tr>
+<tr><td><span class='pt13'>set</span> -l i 1</td></tr>
+<tr><td><span class='pt17'>for</span> line <span class='pt17'>in</span> (string join <span class='pt8'>&#39; &#39;</span> (echo -e <span class='pt8'>&#39;I\'m\nmulti-line!&#39;</span>))</td></tr>
+<tr><td>  <span class='pt13'>printf</span> <span class='pt8'>&#39;%d. %s\n&#39;</span> $<span class='pt10'>i</span> <span class='pt8'>&quot;$</span><span class='pt10'>line</span><span class='pt8'>&quot;</span></td></tr>
+<tr><td>  <span class='pt13'>set</span> i (math $<span class='pt10'>i</span> + 1)</td></tr>
+<tr><td><span class='pt17'>end</span></td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt12'># Otherwise, you&#39;ll need to remove `\n` from the list of internal field separators.</span></td></tr>
+<tr><td><span class='pt12'># By using a block and locally-declared IFS, you can avoid messing with the IFS</span></td></tr>
+<tr><td><span class='pt12'># of the whole script.</span></td></tr>
+<tr><td><span class='pt17'>begin</span></td></tr>
+<tr><td>  <span class='pt12'># simply zero out the IFS</span></td></tr>
+<tr><td>  <span class='pt13'>set</span> -l IFS</td></tr>
+<tr><td>  <span class='pt13'>set</span> -l i 1</td></tr>
+<tr><td>  <span class='pt17'>for</span> line <span class='pt17'>in</span> (echo -e <span class='pt8'>&#39;I\'m\nmulti-line!&#39;</span>)</td></tr>
+<tr><td>    <span class='pt13'>printf</span> <span class='pt8'>&#39;%d. %s\n&#39;</span> $<span class='pt10'>i</span> <span class='pt8'>&quot;$</span><span class='pt10'>line</span><span class='pt8'>&quot;</span></td></tr>
+<tr><td>    <span class='pt13'>set</span> i (math $<span class='pt10'>i</span> + 1)</td></tr>
+<tr><td>  <span class='pt17'>end</span></td></tr>
+<tr><td><span class='pt17'>end</span></td></tr>
+<tr><td><span class='pt12'># The IFS is now back to normal.</span></td></tr>
+</table>
+</div>
+
+<p>
+  The mathematical expressions haven't been spared by "<span class="inlineCode">fish</span>", either.
+  We get a new <span class="inlineCode">math</span> command, allowing us to perform a bit more advanced calculations, as well as specify the number of significant figures of the result.
+</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt12'># `math` takes flags and a string and prints its result to stdout.</span></td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt12'># Output the result of integer division (0 significant figures).</span></td></tr>
+<tr><td><span class='pt13'>math -s0</span> 10 / 3</td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt12'># Assign the result of the expression to a variable.</span></td></tr>
+<tr><td><span class='pt13'>set</span> result (math -s0 10 / 3)</td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt12'># There two mathematical constants available: pi and e.</span></td></tr>
+<tr><td><span class='pt12'># Output the result with 10 significant figures.</span></td></tr>
+<tr><td><span class='pt13'>math -s10</span> e / pi</td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt12'># There are also a few mathematical functions functions available.</span></td></tr>
+<tr><td><span class='pt12'># If we want to make use of parentheses in the expression, we need to wrap it in quotes.</span></td></tr>
+<tr><td><span class='pt17'>if</span> <span class='pt13'>test</span> (math <span class='pt8'>&#39;sin(pi / sqrt(abs(-4))) + cos(0.25 * pi / pow(0.5, 2))&#39;</span>) <span class='pt13'>-eq</span> 0</td></tr>
+<tr><td>  <span class='pt13'>echo</span> <span class='pt8'>&#39;Correct!&#39;</span></td></tr>
+<tr><td><span class='pt17'>end</span></td></tr>
+</table>
+</div>
+
+<p>
+  And now, my personal favorite!
+  <span class="inlineCode">set_color</span> streamlines the awkward process of coloring the output by providing a way to specify colors (both foreground and background) by their names and hex codes along with other text attributes.
+</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt12'># `set_color` outputs escape sequences according to the arguments given.</span></td></tr>
+<tr><td><span class='pt12'># Therefore, like in any other shell, we need to output the result to set the attributes.</span></td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt12'># Output bold green text on red background.</span></td></tr>
+<tr><td><span class='pt12'># `set_color normal` sets all the attributes to defaults.</span></td></tr>
+<tr><td><span class='pt13'>echo</span> -s (set_color --bold --background red green) <span class='pt13'>fancy</span> (set_color normal)</td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt12'># Output yellow text, with half of it dimmed.</span></td></tr>
+<tr><td><span class='pt12'># `dim` is useful for &quot;graying-out&quot; parts of the text.</span></td></tr>
+<tr><td><span class='pt13'>echo</span> -s (set_color yellow) <span class='pt8'>&quot;i&#39;m &quot;</span> (set_color<span class='pt13'> --dim</span>) <span class='pt13'>fading</span> (set_color normal)</td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt12'># Output bold, italic and underlined text.</span></td></tr>
+<tr><td><span class='pt13'>echo</span> -s (set_color --bold --italics --underline) <span class='pt8'>&#39;absolute fanciness&#39;</span> (set_color normal)</td></tr>
+</table>
+</div>
+
+<p>
+  Finally, we come to the aspect I most likely should have touched upon first - the general syntax revamp of control structures.
+  In <span class="inlineCode">fish</span>, every block begins with a keyword and ends with a simple <span class="inlineCode">end</span>.
+  No more <span class="inlineCode">if</span>/<span class="inlineCode">fi</span>, <span class="inlineCode">case</span>/<span class="inlineCode">esac</span>, no more extraneous <span class="inlineCode">then</span>s.
+</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt12'># Apart from `&amp;&amp;` and `||`, there is alternate syntax available.</span></td></tr>
+<tr><td><span class='pt13'>ls --invalid-flag</span> <span class='pt17'>&gt;</span> /dev/null <span class='pt7'>2</span><span class='pt17'>&gt;&amp;</span><span class='pt7'>1</span></td></tr>
+<tr><td><span class='pt13'>and</span> echo <span class='pt8'>&#39;ls ok&#39;</span></td></tr>
+<tr><td><span class='pt13'>or</span> echo <span class='pt8'>&#39;ls NOT ok&#39;</span></td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt12'>## It&#39;s actually quite cool if you compare it with the standard:</span></td></tr>
+<tr><td><span class='pt13'>ls --invalid-flag</span> <span class='pt17'>&gt;</span> /dev/null <span class='pt7'>2</span><span class='pt17'>&gt;&amp;</span><span class='pt7'>1</span> <span class='pt17'>&amp;&amp;</span> \</td></tr>
+<tr><td><span class='pt13'>echo</span> <span class='pt8'>&#39;ls ok&#39;</span> <span class='pt17'>||</span> \</td></tr>
+<tr><td><span class='pt13'>echo</span> <span class='pt8'>&#39;ls NOT ok&#39;</span></td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt12'>## A more compact version.</span></td></tr>
+<tr><td><span class='pt13'>ls</span> <span class='pt17'>&gt;</span> /dev/null <span class='pt7'>2</span><span class='pt17'>&gt;&amp;</span><span class='pt7'>1</span><span class='pt17'>;</span> <span class='pt13'>and</span> echo <span class='pt8'>&#39;ls ok&#39;</span><span class='pt17'>;</span> <span class='pt13'>or</span> echo <span class='pt8'>&#39;ls NOT ok&#39;</span></td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt12'># If</span></td></tr>
+<tr><td><span class='pt12'>## A fun fact: fish code generally tends to favor direct calls</span></td></tr>
+<tr><td><span class='pt12'>## to `test` instead of using `[`.</span></td></tr>
+<tr><td><span class='pt12'>## Nonetheless, both ways work.</span></td></tr>
+<tr><td><span class='pt13'>set</span> -l hour (date +<span class='pt8'>&#39;%H&#39;</span>)</td></tr>
+<tr><td><span class='pt17'>if</span> <span class='pt13'>test</span> $<span class='pt10'>hour</span><span class='pt13'> -lt</span> 8</td></tr>
+<tr><td>  <span class='pt13'>echo</span> <span class='pt8'>&quot;Wow, you&#39;re up exceptionally early!&quot;</span></td></tr>
+<tr><td><span class='pt17'>else</span> <span class='pt17'>if</span> <span class='pt13'>[</span> $<span class='pt10'>hour</span> <span class='pt13'>-le</span> 12 <span class='pt13'>]</span></td></tr>
+<tr><td>  <span class='pt13'>echo</span> <span class='pt8'>&#39;Good morning!&#39;</span></td></tr>
+<tr><td><span class='pt17'>else</span></td></tr>
+<tr><td>  <span class='pt13'>echo</span> <span class='pt8'>&quot;You&#39;ve been coding all night again, haven&#39;t you?&quot;</span></td></tr>
+<tr><td><span class='pt17'>end</span></td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt12'># Switch</span></td></tr>
+<tr><td><span class='pt17'>switch</span> (uname)</td></tr>
+<tr><td><span class='pt17'>case</span> Linux</td></tr>
+<tr><td>  echo <span class='pt8'>&quot;You&#39;re not a real UNIX!&quot;</span></td></tr>
+<tr><td><span class='pt12'>## You can list multiple values, as well as use wildcards.</span></td></tr>
+<tr><td><span class='pt17'>case</span> Darwin <span class='pt8'>&#39;*BSD&#39;</span></td></tr>
+<tr><td>  echo <span class='pt8'>&quot;Now, you&#39;re a UNIX.&quot;</span></td></tr>
+<tr><td><span class='pt17'>case</span> <span class='pt8'>&#39;*&#39;</span></td></tr>
+<tr><td>  echo <span class='pt8'>&#39;So, who exactly are you?&#39;</span></td></tr>
+<tr><td><span class='pt17'>end</end></td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt12'># For</span></td></tr>
+<tr><td><span class='pt17'>for</span> number <span class='pt17'>in</span> <span class='pt17'>(</span>seq 10 -1 0<span class='pt17'>)</span></td></tr>
+<tr><td>  <span class='pt13'>echo</span> <span class='pt8'>&quot;$</span><span class='pt10'>number</span><span class='pt8'>...&quot;</span></td></tr>
+<tr><td><span class='pt17'>end</span></td></tr>
+<tr><td><span class='pt13'>echo</span> go!</td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td><span class='pt12'># While</span></td></tr>
+<tr><td><span class='pt12'>## Output all command-line arguments, if any.</span></td></tr>
+<tr><td><span class='pt17'>while</span> <span class='pt13'>test</span> (count $<span class='pt10'>argv</span>) <span class='pt13'>-gt</span> 0</td></tr>
+<tr><td>  <span class='pt13'>echo</span> $<span class='pt10'>argv</span><span class='pt17'>[</span>1<span class='pt17'>]</span></td></tr>
+<tr><td>  <span class='pt13'>set</span> <span class='pt13'>-e</span> argv<span class='pt17'>[</span>1<span class='pt17'>]</span></td></tr>
+<tr><td><span class='pt17'>end</span></td></tr>
+</table>
+</div>
+
+<h3>Configuration and tooling</h3>
+<p>
+  <span class="inlineCode">fish</span> configuration files live in <span class="inlineCode">~/.config/fish</span>.
+  If you're looking for the equivalent of <span class="inlineCode">.bashrc</span>, it's contained in <span class="inlineCode">~/.config/fish/config.fish</span>.
+  This file specifies the commands run on the shell's start-up.
+  Your functions, in the meantime, need to be placed in <span class="inlineCode">~/.config/fish/functions</span>.
+</p>
+<p>
+  It turns out the functions are a very significant concept in <span class="inlineCode">fish</span>.
+  For instance, if you need an alias, what you want is a function.
+</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt12'># declare `vim` as an alias to `nvim`</span></td></tr>
+<tr><td><span class='pt17'>function</span> <span class='pt13'>vim</span></td></tr>
+<tr><td>  <span class='pt13'>nvim</span> $argv</td></tr>
+<tr><td><span class='pt17'>end</span></td></tr>
+</table>
+</div>
+
+<div class="filename"><p>~/.config/fish/functions/vim.fish</p></div>
+<p>
+  To customize <span class="inlineCode">fish</span>'s behavior, moreover, we also specify functions that override the default ones.
+  The problem, as usual, is with the discovery of said default functions.
+</p>
+<p>
+  Here's where <span class="inlineCode">fish</span> shines once more.
+  Using <span class="inlineCode">fish_config</span> we can, apart from performing basic configuration, look up currently defined variables and functions along with their content.
+</p>
+<h3>Goodies for ZSH users</h3>
+<p>
+  If, for whatever reason, you're not going to give <span class="inlineCode">fish</span> a try, don't despair.
+  You can find <span class="inlineCode">zsh</span> ports of
+  <a href="https://github.com/zsh-users/zsh-syntax-highlighting" target="_blank">the syntax highlighting</a> and <a href="https://github.com/zsh-users/zsh-autosuggestions" target="_blank">command completion</a>.
+</p>
+<h3>A fistful of dotfiles</h3>
+<p>
+  As is the tradition, here are some configuration files for your consideration.
+  Enjoy!
+</p>
+<figure>
+<img src="../images/my-fish-setup.png" alt="My FISH setup"/>
+<figcaption>Here's what you can get :)</figcaption>
+</figure>
+<p>Actually, hold on! By default, <span class="inlineCode">fish</span> abbreviates the absolute path of your <em>current working directory</em>. You'll most likely want to change this behaviour:</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt13'>set</span> -U fish_prompt_pwd_dir_length 0</td></tr>
+</table>
+</div>
+
+<p>Also, here's a really neat Nord-based syntax highlighting color scheme by <a href="https://github.com/duganchen" target="_blank">duganchen</a>. Execute the commands below to use it.</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt13'>set</span> nord0 2e3440</td></tr>
+<tr><td><span class='pt13'>set</span> nord1 3b4252</td></tr>
+<tr><td><span class='pt13'>set</span> nord2 434c5e</td></tr>
+<tr><td><span class='pt13'>set</span> nord3 4c566a</td></tr>
+<tr><td><span class='pt13'>set</span> nord4 d8dee9</td></tr>
+<tr><td><span class='pt13'>set</span> nord5 e5e9f0</td></tr>
+<tr><td><span class='pt13'>set</span> nord6 eceff4</td></tr>
+<tr><td><span class='pt13'>set</span> nord7 8fbcbb</td></tr>
+<tr><td><span class='pt13'>set</span> nord8 88c0d0</td></tr>
+<tr><td><span class='pt13'>set</span> nord9 81a1c1</td></tr>
+<tr><td><span class='pt13'>set</span> nord10 5e81ac</td></tr>
+<tr><td><span class='pt13'>set</span> nord11 bf616a</td></tr>
+<tr><td><span class='pt13'>set</span> nord12 d08770</td></tr>
+<tr><td><span class='pt13'>set</span> nord13 ebcb8b</td></tr>
+<tr><td><span class='pt13'>set</span> nord14 a3be8c</td></tr>
+<tr><td><span class='pt13'>set</span> nord15 b48ead</td></tr>
+<tr><td><span class='pt13'>set</span> fish_color_normal $<span class='pt10'>nord4</span></td></tr>
+<tr><td><span class='pt13'>set</span> fish_color_command $<span class='pt10'>nord9</span></td></tr>
+<tr><td><span class='pt13'>set</span> fish_color_quote $<span class='pt10'>nord14</span></td></tr>
+<tr><td><span class='pt13'>set</span> fish_color_redirection $<span class='pt10'>nord9</span></td></tr>
+<tr><td><span class='pt13'>set</span> fish_color_end $<span class='pt10'>nord6</span></td></tr>
+<tr><td><span class='pt13'>set</span> fish_color_error $<span class='pt10'>nord11</span></td></tr>
+<tr><td><span class='pt13'>set</span> fish_color_param $<span class='pt10'>nord4</span></td></tr>
+<tr><td><span class='pt13'>set</span> fish_color_comment $<span class='pt10'>nord3</span></td></tr>
+<tr><td><span class='pt13'>set</span> fish_color_match $<span class='pt10'>nord8</span></td></tr>
+<tr><td><span class='pt13'>set</span> fish_color_search_match $<span class='pt10'>nord8</span></td></tr>
+<tr><td><span class='pt13'>set</span> fish_color_operator $<span class='pt10'>nord9</span></td></tr>
+<tr><td><span class='pt13'>set</span> fish_color_escape $<span class='pt10'>nord13</span></td></tr>
+<tr><td><span class='pt13'>set</span> fish_color_cwd $<span class='pt10'>nord8</span></td></tr>
+<tr><td><span class='pt13'>set</span> fish_color_autosuggestion $<span class='pt10'>nord6</span></td></tr>
+<tr><td><span class='pt13'>set</span> fish_color_user $<span class='pt10'>nord4</span></td></tr>
+<tr><td><span class='pt13'>set</span> fish_color_host $<span class='pt10'>nord9</span></td></tr>
+<tr><td><span class='pt13'>set</span> fish_color_cancel $<span class='pt10'>nord15</span></td></tr>
+<tr><td><span class='pt13'>set</span> fish_pager_color_prefix $<span class='pt10'>nord13</span></td></tr>
+<tr><td><span class='pt13'>set</span> fish_pager_color_completion $<span class='pt10'>nord6</span></td></tr>
+<tr><td><span class='pt13'>set</span> fish_pager_color_description $<span class='pt10'>nord10</span></td></tr>
+<tr><td><span class='pt13'>set</span> fish_pager_color_progress $<span class='pt10'>nord12</span></td></tr>
+<tr><td><span class='pt13'>set</span> fish_pager_color_secondary $<span class='pt10'>nord1</span></td></tr>
+</table>
+</div>
+
+<p>A Powerline-ish left prompt. Comes with a basic <span class="inlineCode">git</span> support, displaying branch name, changing colors based on the changes having been commited and showing the number of untracked files. You'll need to set the value of <span class="inlineCode">ALT_BLUE</span> (<span class="inlineCode">set -U ALT_BLUE mycolor</span>) to your own.</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt17'>function</span> <span class='pt13'>fish_prompt</span></td></tr>
+<tr><td>  <span class='pt12'># print prompt segment</span></td></tr>
+<tr><td>  function _segment</td></tr>
+<tr><td>    <span class='pt12'>## Powerline right arrow/triangle</span></td></tr>
+<tr><td>    set -l ARROW <span class='pt7'>\u</span>e0b0</td></tr>
+<tr><td>    set -l color $argv[1]</td></tr>
+<tr><td>    set -l fade_to $argv[2]</td></tr>
+<tr><td>    set -l content &quot;$argv[3]&quot;</td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td>    echo -ens \</td></tr>
+<tr><td>      (set_color --background $color black) &quot; $content &quot; \</td></tr>
+<tr><td>      (set_color --background $fade_to $color) $ARROW</td></tr>
+<tr><td>  end</td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td>  <span class='pt12'># check whether the repo has all changes commited</span></td></tr>
+<tr><td>  function _git_up_to_date</td></tr>
+<tr><td>    test -z (string join0 (git status -uno --porcelain 2&gt; /dev/null))</td></tr>
+<tr><td>  end</td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td>  <span class='pt12'># print git status (if any)</span></td></tr>
+<tr><td>  function _git_status</td></tr>
+<tr><td>    <span class='pt12'>## get current branch name (if any)</span></td></tr>
+<tr><td>    function _git_branch</td></tr>
+<tr><td>      git rev-parse --abbrev-ref HEAD 2&gt; /dev/null</td></tr>
+<tr><td>    end</td></tr>
+<tr><td>    <span class='pt12'>## get the number of untracked files in the repo</span></td></tr>
+<tr><td>    function _git_untracked</td></tr>
+<tr><td>      git status --porcelain | grep &#39;??&#39; | wc -l</td></tr>
+<tr><td>    end</td></tr>
+<tr><td>    </td></tr>
+<tr><td>    <span class='pt12'>## figure out how to format status</span></td></tr>
+<tr><td>    set -l git_branch (_git_branch)</td></tr>
+<tr><td>    if test -z $git_branch; return 0; end</td></tr>
+<tr><td>    set -l untracked (_git_untracked)</td></tr>
+<tr><td>    if test $untracked -gt 0</td></tr>
+<tr><td>      set untracked_str &quot; [$untracked]&quot;</td></tr>
+<tr><td>    end</td></tr>
+<tr><td>    echo -n &quot;$git_branch$untracked_str&quot;</td></tr>
+<tr><td>  end</td></tr>
+<tr><td>  </td></tr>
+<tr><td>  <span class='pt12'># figure out the color of git status segment</span></td></tr>
+<tr><td>  set -l git_status (_git_status)</td></tr>
+<tr><td>  set -l git_color green</td></tr>
+<tr><td>  if ! _git_up_to_date</td></tr>
+<tr><td>    set git_color yellow</td></tr>
+<tr><td>  end</td></tr>
+<tr><td>  if test -z &quot;$git_status&quot;</td></tr>
+<tr><td>    set git_color normal</td></tr>
+<tr><td>  end</td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td>  <span class='pt12'># output the prompt</span></td></tr>
+<tr><td>  _segment $ALT_BLUE $git_color (prompt_pwd)</td></tr>
+<tr><td>  if test -n &quot;$git_status&quot;</td></tr>
+<tr><td>    _segment $git_color normal &quot;$git_status&quot;</td></tr>
+<tr><td>  end</td></tr>
+<tr><td>  echo -n &#39; &#39;</td></tr>
+<tr><td>end</td></tr>
+</table>
+</div>
+
+<div class="filename"><p>~/.config/fish/functions/fish_prompt.fish</p></div>
+<p>
+  A Powerline-ish right prompt.
+  Indicates the return value of the command and its execution time.
+</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt17'>function</span> <span class='pt13'>fish_right_prompt</span></td></tr>
+<tr><td>  <span class='pt12'># fetch the exit code of most recent command</span></td></tr>
+<tr><td>  <span class='pt12'># color the segment green if the code is 0, red otherwise</span></td></tr>
+<tr><td>  set -l exitcode $status</td></tr>
+<tr><td>  set -l statuscolor green</td></tr>
+<tr><td>  if test $exitcode -ne 0</td></tr>
+<tr><td>    set statuscolor red</td></tr>
+<tr><td>  end</td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td>  <span class='pt12'># pretty-print the duration of most recent command</span></td></tr>
+<tr><td>  set -l minutes (math -s0 $CMD_DURATION / 60000.0)</td></tr>
+<tr><td>  set -l seconds (math -s0 $CMD_DURATION % 60000.0 / 1000.0)</td></tr>
+<tr><td>  set -l millis (math $CMD_DURATION % 1000.0)</td></tr>
+<tr><td>  set -l duration &#39;&#39;</td></tr>
+<tr><td>  if test $minutes -gt 0</td></tr>
+<tr><td>    set duration &quot;$minutes:&quot;</td></tr>
+<tr><td>  end</td></tr>
+<tr><td>  set duration (printf &#39;%s%d.%03d&#39; $duration $seconds $millis)</td></tr>
+<tr><td>&#10;</td></tr>
+<tr><td>  <span class='pt12'># output the prompt</span></td></tr>
+<tr><td>  <span class='pt12'>## Powerline left arrow/triangle</span></td></tr>
+<tr><td>  set -l ARROW <span class='pt7'>\u</span>e0b2</td></tr>
+<tr><td>  echo -ens \</td></tr>
+<tr><td>    (set_color $ALT_BLUE) $ARROW (set_color --background $ALT_BLUE black) \</td></tr>
+<tr><td>    &quot; $duration &quot; \</td></tr>
+<tr><td>    (set_color $statuscolor) $ARROW (set_color --background $statuscolor black) \</td></tr>
+<tr><td>    &quot; $exitcode &quot; (set_color normal)</td></tr>
+<tr><td>end</td></tr>
+</table>
+</div>
+
+<div class="filename"><p>~/.config/fish/functions/fish_right_prompt.fish</p></div>
+<p>An accompanying vi mode indicator. To use vi mode in <span class="inlineCode">fish</span>, execute the <span class="inlineCode">fish_vi_key_bindings</span> command.</p>
+<div class='paint'>
+<table>
+<tr><td><span class='pt17'>function</span> <span class='pt13'>fish_default_mode_prompt</span></td></tr>
+<tr><td>  if test &quot;$fish_key_bindings&quot;</td></tr>
+<tr><td>    switch $fish_bind_mode</td></tr>
+<tr><td>      case default</td></tr>
+<tr><td>        set color blue</td></tr>
+<tr><td>        set symbol N</td></tr>
+<tr><td>      case insert</td></tr>
+<tr><td>        set color green</td></tr>
+<tr><td>        set symbol I</td></tr>
+<tr><td>      case replace_one</td></tr>
+<tr><td>        set color green</td></tr>
+<tr><td>        set symbol R</td></tr>
+<tr><td>      case visual</td></tr>
+<tr><td>        set color magenta</td></tr>
+<tr><td>        set symbol V</td></tr>
+<tr><td>    end</td></tr>
+<tr><td>    set -l ARROW <span class='pt7'>\u</span>e0b0</td></tr>
+<tr><td>    echo -ns \</td></tr>
+<tr><td>      (set_color --background $color black) &quot; $symbol &quot; \</td></tr>
+<tr><td>      (set_color --background $ALT_BLUE $color) $ARROW</td></tr>
+<tr><td>  end</td></tr>
+<tr><td>end</td></tr>
+</table>
+</div>
+
+<div class="filename"><p>~/.config/fish/functions/fish_default_mode_prompt.fish</p></div>
+<p>I don't suspect that many of you use <span class="inlineCode">finch</span> but here's a function allowing it to run flawlessly on the <span class="inlineCode">st</span> terminal.</p>
+<p>Why am I showing it to you, then? It demonstrates how to do <span class="inlineCode">export TERM=screen /usr/bin/finch</span> the <span class="inlineCode">fish</span> way.
+<div class='paint'>
+<table>
+<tr><td><span class='pt17'>function</span> <span class='pt13'>finch --description &#39;open finch on st&#39;</span></td></tr>
+<tr><td>  set -lx TERM screen</td></tr>
+<tr><td>  /usr/bin/finch</td></tr>
+<tr><td>end</td></tr>
+</table>
+</div>
+
+<div class="filename"><p>~/.config/fish/functions/finch.fish</p></div>
+</article>
+</div>
+</body>
+</html>

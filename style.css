@@ -20,6 +20,25 @@ body {
   font-family: sans-serif;
 }
 
+figure {
+  display: table;
+  border: 0.125rem solid #000000;
+  margin-bottom: 1em;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+figcaption {
+  display: block;
+  font-family: monospace, monospace;
+  background-color: #000000;
+  color: #ffffff;
+}
+
+img {
+  display: block;
+}
+
 header {
   width: 100%;
   flex: 0;

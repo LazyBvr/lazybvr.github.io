@@ -4,8 +4,7 @@ function geolocate(map) {
         alert('Geolocation not supported.');
         return;
     }
-
-    navigator.geolocation.getCurrentPosition(() => {}, () => {});
+    
     navigator.geolocation.getCurrentPosition(
         p => {
             map.setCenter({ lat: p.coords.latitude, lng: p.coords.longitude });
